@@ -1,10 +1,14 @@
 package hansung.org.terrius.domain.user.kakao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hansung.org.terrius.domain.user.entity.User;
+import hansung.org.terrius.domain.user.exception.UserErrorCode;
+import hansung.org.terrius.domain.user.exception.UserException;
 import hansung.org.terrius.domain.user.repository.UserRepository;
 import hansung.org.terrius.domain.user.web.dto.LoginRes;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import hansung.org.terrius.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -14,9 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
 
@@ -25,7 +28,6 @@ import java.util.HashMap;
 public class KakaoAuthProvider {
 
     private final UserRepository userRepository;
-    private final RefreshTokenService refreshTokenService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${kakao.client}")
@@ -58,20 +60,17 @@ public class KakaoAuthProvider {
                             HttpMethod.POST,
                             kakaoTokenRequest,
                             String.class);
-        } catch (Exception e) {
-            throw new GlobalException(GlobalErrorCode.KAKAO_AUTH_ERROR);
+        } catch (RestClientException e) {
+            throw new UserException(UserErrorCode.KAKAO_AUTH_FAILED);
         }
 
         // HTTP 응답 (JSON) -> 액세스 토큰 파싱
-        String responseBody = response.getBody();
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = null;
-        try {
-            jsonNode = objectMapper.readTree(responseBody);
-        } catch (JsonProcessingException e) {
-            throw new GlobalException(GlobalErrorCode.KAKAO_AUTH_ERROR);
+        JsonNode jsonNode = parseJson(response.getBody());
+        JsonNode accessTokenNode = jsonNode.get("access_token");
+        if (accessTokenNode == null || accessTokenNode.asText().isBlank()) {
+            throw new UserException(UserErrorCode.KAKAO_AUTH_FAILED);
         }
-        return jsonNode.get("access_token").asText(); // 토큰 추출
+        return accessTokenNode.asText();
     }
 
     public HashMap<String, Object> getKakaoUserInfo(String accessToken) {
@@ -86,26 +85,31 @@ public class KakaoAuthProvider {
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response =
-                restTemplate.exchange(
-                        "https://kapi.kakao.com/v2/user/me",
-                        HttpMethod.POST,
-                        kakaoUserInfoRequest,
-                        String.class);
-
-        // responseBody에 있는 정보 추출
-        String responseBody = response.getBody();
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = null;
+        ResponseEntity<String> response;
         try {
-            jsonNode = objectMapper.readTree(responseBody);
-        } catch (JsonProcessingException e) {
-            throw new GlobalException(GlobalErrorCode.KAKAO_AUTH_ERROR);
+            response =
+                    restTemplate.exchange(
+                            "https://kapi.kakao.com/v2/user/me",
+                            HttpMethod.POST,
+                            kakaoUserInfoRequest,
+                            String.class);
+        } catch (RestClientException e) {
+            throw new UserException(UserErrorCode.KAKAO_USER_INFO_FETCH_FAILED);
         }
 
-        Long id = jsonNode.get("id").asLong();
-        String email = jsonNode.get("kakao_account").get("email").asText();
-        String nickname = jsonNode.get("properties").get("nickname").asText();
+        // responseBody에 있는 정보 추출
+        JsonNode jsonNode = parseJson(response.getBody());
+
+        JsonNode idNode = jsonNode.get("id");
+        JsonNode emailNode = jsonNode.path("kakao_account").get("email");
+        JsonNode nicknameNode = jsonNode.path("properties").get("nickname");
+        if (idNode == null || emailNode == null || nicknameNode == null) {
+            throw new UserException(UserErrorCode.KAKAO_ACCOUNT_INFO_MISSING);
+        }
+
+        Long id = idNode.asLong();
+        String email = emailNode.asText();
+        String nickname = nicknameNode.asText();
 
         userInfo.put("id", id);
         userInfo.put("email", email);
@@ -126,10 +130,15 @@ public class KakaoAuthProvider {
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(newUser.getId());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(newUser.getId());
 
-        refreshTokenService.saveRefreshToken(refreshToken);
+        return KakaoAuthConverter.toLoginResponse(accessToken, newUser);
+    }
 
-        return KakaoAuthConverter.toLoginResponse(accessToken, refreshToken, newUser);
+    private JsonNode parseJson(String responseBody) {
+        try {
+            return new ObjectMapper().readTree(responseBody);
+        } catch (JsonProcessingException e) {
+            throw new UserException(UserErrorCode.KAKAO_RESPONSE_PARSE_FAILED);
+        }
     }
 }

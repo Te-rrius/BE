@@ -15,6 +15,7 @@ public class UserServiceImpl implements UserService {
     private final KakaoAuthProvider kakaoAuthProvider;
 
     @Override
+    @Transactional
     public LoginRes login(String code) {
         // 1. 인가 코드로 토큰 발급
         String accessToken = kakaoAuthProvider.getAccessToken(code);
