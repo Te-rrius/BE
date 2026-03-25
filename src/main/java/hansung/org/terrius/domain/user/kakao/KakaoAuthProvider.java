@@ -1,6 +1,11 @@
 package hansung.org.terrius.domain.user.kakao;
 
+import hansung.org.terrius.domain.user.entity.User;
+import hansung.org.terrius.domain.user.repository.UserRepository;
 import hansung.org.terrius.domain.user.web.dto.LoginRes;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +21,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 
 @Component
+@RequiredArgsConstructor
 public class KakaoAuthProvider {
 
     private final UserRepository userRepository;
