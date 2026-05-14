@@ -19,4 +19,12 @@ public class User {
 
     @Column(name = "email", nullable = false)
     private String email;
+
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
+    public void updateKakaoProfile(String nicName, String profileImageUrl) {
+        this.nicName = nicName;
+        this.profileImageUrl = profileImageUrl;
+    }
 }

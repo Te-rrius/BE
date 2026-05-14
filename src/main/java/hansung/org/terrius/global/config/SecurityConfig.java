@@ -1,5 +1,7 @@
 package hansung.org.terrius.global.config;
 
+import hansung.org.terrius.domain.user.kakao.KakaoOAuth2UserService;
+import hansung.org.terrius.domain.user.kakao.OAuth2AuthenticationSuccessHandler;
 import hansung.org.terrius.global.exception.CustomAuthenticationEntryPoint;
 import hansung.org.terrius.global.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final KakaoOAuth2UserService kakaoOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -28,9 +32,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS 프리플라이트 요청 허용
                         .requestMatchers(
-                                "/api/users/kakao/login"
+                                "/oauth2/**",
+                                "/login/oauth2/**"
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(kakaoOAuth2UserService))
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint)) // 401, 토큰 만료
