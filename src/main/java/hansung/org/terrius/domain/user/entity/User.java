@@ -1,0 +1,30 @@
+package hansung.org.terrius.domain.user.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "nic_name", nullable = false)
+    private String nicName;
+
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
+    public void updateKakaoProfile(String nicName, String profileImageUrl) {
+        this.nicName = nicName;
+        this.profileImageUrl = profileImageUrl;
+    }
+}
