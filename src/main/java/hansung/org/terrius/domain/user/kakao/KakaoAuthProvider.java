@@ -1,8 +1,5 @@
 package hansung.org.terrius.domain.user.kakao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import hansung.org.terrius.domain.user.entity.User;
 import hansung.org.terrius.domain.user.exception.UserErrorCode;
 import hansung.org.terrius.domain.user.exception.UserException;
@@ -20,6 +17,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
 
@@ -29,6 +29,7 @@ public class KakaoAuthProvider {
 
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ObjectMapper objectMapper;
 
     @Value("${kakao.client}")
     private String clientId;
@@ -136,8 +137,8 @@ public class KakaoAuthProvider {
 
     private JsonNode parseJson(String responseBody) {
         try {
-            return new ObjectMapper().readTree(responseBody);
-        } catch (JsonProcessingException e) {
+            return objectMapper.readTree(responseBody);
+        } catch (JacksonException e) {
             throw new UserException(UserErrorCode.KAKAO_RESPONSE_PARSE_FAILED);
         }
     }
