@@ -61,24 +61,13 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void initReports() {
+        String scoringStrokeUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/06_scoring_stroke.mp4";
+        String unforcedErrorUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/01_unforced_error.mp4";
+        MatchVideo matchVideo = getOrCreateMatchVideo(scoringStrokeUrl);
+
         if (reportRepository.count() > 0) {
             return;
         }
-
-        String scoringStrokeUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/06_scoring_stroke.mp4";
-        String unforcedErrorUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/01_unforced_error.mp4";
-        Stadium stadium = stadiumRepository.findAll().getFirst();
-
-        MatchVideo matchVideo = MatchVideo.builder()
-                .videoUrl(scoringStrokeUrl)
-                .matchDate(LocalDate.of(2026, 5, 16))
-                .startTime(LocalTime.of(14, 0))
-                .endTime(LocalTime.of(15, 20))
-                .matchType(MatchType.SINGLES)
-                .reportRequested(true)
-                .build();
-        matchVideo.assignStadium(stadium);
-        matchVideoRepository.save(matchVideo);
 
         Report playerOneReport = Report.builder()
                 .shotType(ShotType.FOREHAND)
@@ -150,5 +139,23 @@ public class DataInitializer implements ApplicationRunner {
                         scoringStrokeUrl
                 )
         ));
+    }
+
+    private MatchVideo getOrCreateMatchVideo(String videoUrl) {
+        return matchVideoRepository.findAll().stream()
+                .findFirst()
+                .orElseGet(() -> {
+                    Stadium stadium = stadiumRepository.findAll().getFirst();
+                    MatchVideo matchVideo = MatchVideo.builder()
+                            .videoUrl(videoUrl)
+                            .matchDate(LocalDate.of(2026, 5, 16))
+                            .startTime(LocalTime.of(14, 0))
+                            .endTime(LocalTime.of(15, 20))
+                            .matchType(MatchType.SINGLES)
+                            .reportRequested(true)
+                            .build();
+                    matchVideo.assignStadium(stadium);
+                    return matchVideoRepository.save(matchVideo);
+                });
     }
 }
