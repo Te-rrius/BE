@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
 import java.util.UUID;
@@ -101,13 +102,16 @@ public class S3Service {
     }
 
     private String extractObjectKey(String fileUrl) {
-        String bucketMarker = bucket + "/";
-        int keyStartIndex = fileUrl.indexOf(bucketMarker);
+        String path = URI.create(fileUrl).getPath();
 
-        if (keyStartIndex == -1) {
+        if (path == null || path.isBlank() || path.equals("/")) {
             throw new IllegalArgumentException("S3 파일 URL 형식이 올바르지 않습니다.");
         }
 
-        return fileUrl.substring(keyStartIndex + bucketMarker.length());
+        if (path.startsWith("/" + bucket + "/")) {
+            return path.substring(bucket.length() + 2);
+        }
+
+        return path.substring(1);
     }
 }
