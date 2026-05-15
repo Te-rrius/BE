@@ -6,6 +6,7 @@ import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
 import hansung.org.terrius.domain.report.entity.Report;
 import hansung.org.terrius.domain.report.entity.ReportMaterial;
 import hansung.org.terrius.domain.report.entity.enums.ReportMaterialType;
+import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
 import hansung.org.terrius.domain.report.entity.enums.ShotType;
 import hansung.org.terrius.domain.report.repository.ReportMaterialRepository;
 import hansung.org.terrius.domain.report.repository.ReportRepository;
@@ -83,7 +84,7 @@ public class DataInitializer implements ApplicationRunner {
                 .firstServeSuccessRate(68.5)
                 .secondServeSuccessRate(82.1)
                 .firstServeRate(71.3)
-                .target("PLAYER_ONE")
+                .target(ReportTarget.PLAYER_ONE)
                 .build();
         playerOneReport.assignMatchVideo(matchVideo);
         reportRepository.save(playerOneReport);
@@ -102,7 +103,7 @@ public class DataInitializer implements ApplicationRunner {
                 .firstServeSuccessRate(61.8)
                 .secondServeSuccessRate(76.4)
                 .firstServeRate(66.9)
-                .target("PLAYER_TWO")
+                .target(ReportTarget.PLAYER_TWO)
                 .build();
         playerTwoReport.assignMatchVideo(matchVideo);
         reportRepository.save(playerTwoReport);

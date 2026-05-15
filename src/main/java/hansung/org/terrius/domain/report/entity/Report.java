@@ -1,6 +1,7 @@
 package hansung.org.terrius.domain.report.entity;
 
 import hansung.org.terrius.domain.match.entity.MatchVideo;
+import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
 import hansung.org.terrius.domain.report.entity.enums.ShotType;
 import hansung.org.terrius.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -90,8 +91,9 @@ public class Report extends BaseEntity {
     private Double firstServeRate;
 
     // 단식 경기 기준 두 선수의 리포트를 구분하기 위한 대상
+    @Enumerated(EnumType.STRING)
     @Column(name = "target", nullable = false)
-    private String target;
+    private ReportTarget target;
 
     // 리포트가 귀속되는 원본 경기 영상
     @ManyToOne(fetch = FetchType.LAZY)
