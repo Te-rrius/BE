@@ -1,5 +1,6 @@
 package hansung.org.terrius.domain.user.entity;
 
+import hansung.org.terrius.domain.user.entity.enums.UserGrade;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,11 @@ public class User {
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_grade", nullable = false)
+    private UserGrade userGrade = UserGrade.NORMAL;
 
     public void updateKakaoProfile(String nicName, String profileImageUrl) {
         this.nicName = nicName;
