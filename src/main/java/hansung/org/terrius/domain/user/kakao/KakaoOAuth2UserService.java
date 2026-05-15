@@ -62,7 +62,7 @@ public class KakaoOAuth2UserService implements OAuth2UserService<OAuth2UserReque
                 })
                 .orElseGet(() -> userRepository.save(User.builder()
                         .email(email)
-                        .nicName(nickname)
+                        .nickname(nickname)
                         .profileImageUrl(profileImageUrl)
                         .build()));
 
