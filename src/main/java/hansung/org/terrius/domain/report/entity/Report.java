@@ -1,5 +1,6 @@
 package hansung.org.terrius.domain.report.entity;
 
+import hansung.org.terrius.domain.match.entity.MatchVideo;
 import hansung.org.terrius.domain.report.entity.enums.ShotType;
 import hansung.org.terrius.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -9,6 +10,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -89,6 +93,11 @@ public class Report extends BaseEntity {
     @Column(name = "target", nullable = false)
     private String target;
 
+    // 리포트가 귀속되는 원본 경기 영상
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "match_video_id", nullable = false)
+    private MatchVideo matchVideo;
+
     @Builder.Default
     @OneToMany(mappedBy = "report")
     private List<ReportOwnership> reportOwnerships = new ArrayList<>();
@@ -103,5 +112,10 @@ public class Report extends BaseEntity {
 
     public void addReportMaterial(ReportMaterial reportMaterial) {
         this.reportMaterials.add(reportMaterial);
+    }
+
+    public void assignMatchVideo(MatchVideo matchVideo) {
+        this.matchVideo = matchVideo;
+        matchVideo.addReport(this);
     }
 }

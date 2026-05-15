@@ -1,5 +1,8 @@
 package hansung.org.terrius.global.init;
 
+import hansung.org.terrius.domain.match.entity.MatchVideo;
+import hansung.org.terrius.domain.match.entity.enums.MatchType;
+import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
 import hansung.org.terrius.domain.report.entity.Report;
 import hansung.org.terrius.domain.report.entity.ReportMaterial;
 import hansung.org.terrius.domain.report.entity.enums.ReportMaterialType;
@@ -14,6 +17,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Component
@@ -21,6 +26,7 @@ import java.util.List;
 public class DataInitializer implements ApplicationRunner {
 
     private final StadiumRepository stadiumRepository;
+    private final MatchVideoRepository matchVideoRepository;
     private final ReportRepository reportRepository;
     private final ReportMaterialRepository reportMaterialRepository;
 
@@ -61,8 +67,20 @@ public class DataInitializer implements ApplicationRunner {
 
         String scoringStrokeUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/06_scoring_stroke.mp4";
         String unforcedErrorUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/01_unforced_error.mp4";
+        Stadium stadium = stadiumRepository.findAll().getFirst();
 
-        Report playerOneReport = reportRepository.save(Report.builder()
+        MatchVideo matchVideo = MatchVideo.builder()
+                .videoUrl(scoringStrokeUrl)
+                .matchDate(LocalDate.of(2026, 5, 16))
+                .startTime(LocalTime.of(14, 0))
+                .endTime(LocalTime.of(15, 20))
+                .matchType(MatchType.SINGLES)
+                .reportRequested(true)
+                .build();
+        matchVideo.assignStadium(stadium);
+        matchVideoRepository.save(matchVideo);
+
+        Report playerOneReport = Report.builder()
                 .shotType(ShotType.FOREHAND)
                 .maxSpeed(128.7)
                 .shoulderRotationAngle(74.2)
@@ -77,9 +95,11 @@ public class DataInitializer implements ApplicationRunner {
                 .secondServeSuccessRate(82.1)
                 .firstServeRate(71.3)
                 .target("PLAYER_ONE")
-                .build());
+                .build();
+        playerOneReport.assignMatchVideo(matchVideo);
+        reportRepository.save(playerOneReport);
 
-        Report playerTwoReport = reportRepository.save(Report.builder()
+        Report playerTwoReport = Report.builder()
                 .shotType(ShotType.BACKHAND)
                 .maxSpeed(119.4)
                 .shoulderRotationAngle(69.7)
@@ -94,7 +114,9 @@ public class DataInitializer implements ApplicationRunner {
                 .secondServeSuccessRate(76.4)
                 .firstServeRate(66.9)
                 .target("PLAYER_TWO")
-                .build());
+                .build();
+        playerTwoReport.assignMatchVideo(matchVideo);
+        reportRepository.save(playerTwoReport);
 
         reportMaterialRepository.saveAll(List.of(
                 ReportMaterial.create(
