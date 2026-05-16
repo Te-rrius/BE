@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -46,8 +48,13 @@ public class ReportServiceImpl implements ReportService {
             throw new ReportException(ReportErrorCode.REPORT_NOT_FOUND);
         }
 
+        List<Long> reportIds = reports.stream()
+                .map(Report::getId)
+                .toList();
+        Set<Long> ownedReportIds = new HashSet<>(reportOwnershipRepository.findOwnedReportIds(userId, reportIds));
+
         List<ReportOwnership> reportOwnerships = reports.stream()
-                .filter(report -> !reportOwnershipRepository.existsByUserIdAndReportId(userId, report.getId()))
+                .filter(report -> !ownedReportIds.contains(report.getId()))
                 .map(report -> ReportOwnership.create(user, report))
                 .toList();
 
