@@ -13,5 +13,5 @@ public interface ReportService {
 
     List<MyReportRes> getMyReports(Long userId, ReportSortType sort);
 
-    ReportDetailRes getReportDetail(Long matchVideoId, ReportTarget target);
+    ReportDetailRes getReportDetail(Long userId, Long matchVideoId, ReportTarget target);
 }

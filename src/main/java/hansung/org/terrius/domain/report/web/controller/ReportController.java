@@ -46,10 +46,11 @@ public class ReportController {
 
     @GetMapping("/match-videos/{matchVideoId}")
     public ResponseEntity<SuccessResponse<ReportDetailRes>> getReportDetail(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long matchVideoId,
             @RequestParam ReportTarget target
     ) {
-        ReportDetailRes res = reportService.getReportDetail(matchVideoId, target);
+        ReportDetailRes res = reportService.getReportDetail(customUserDetails.getUser().getId(), matchVideoId, target);
         return ResponseEntity.ok(SuccessResponse.from(res));
     }
 }

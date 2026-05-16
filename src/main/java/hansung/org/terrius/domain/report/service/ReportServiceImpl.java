@@ -70,9 +70,17 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public ReportDetailRes getReportDetail(Long matchVideoId, ReportTarget target) {
+    public ReportDetailRes getReportDetail(Long userId, Long matchVideoId, ReportTarget target) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserException(UserErrorCode.USER_NOT_FOUND);
+        }
+
         Report report = reportRepository.findDetailByMatchVideoIdAndTarget(matchVideoId, target)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+
+        if (!reportOwnershipRepository.existsByUserIdAndReportId(userId, report.getId())) {
+            throw new ReportException(ReportErrorCode.REPORT_ACCESS_DENIED);
+        }
 
         return ReportDetailRes.from(report);
     }
