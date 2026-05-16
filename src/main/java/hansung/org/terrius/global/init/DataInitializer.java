@@ -1,5 +1,15 @@
 package hansung.org.terrius.global.init;
 
+import hansung.org.terrius.domain.match.entity.MatchVideo;
+import hansung.org.terrius.domain.match.entity.enums.MatchType;
+import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
+import hansung.org.terrius.domain.report.entity.Report;
+import hansung.org.terrius.domain.report.entity.ReportMaterial;
+import hansung.org.terrius.domain.report.entity.enums.ReportMaterialType;
+import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
+import hansung.org.terrius.domain.report.entity.enums.ShotType;
+import hansung.org.terrius.domain.report.repository.ReportMaterialRepository;
+import hansung.org.terrius.domain.report.repository.ReportRepository;
 import hansung.org.terrius.domain.stadium.entity.Stadium;
 import hansung.org.terrius.domain.stadium.repository.StadiumRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +18,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Component
@@ -15,10 +27,18 @@ import java.util.List;
 public class DataInitializer implements ApplicationRunner {
 
     private final StadiumRepository stadiumRepository;
+    private final MatchVideoRepository matchVideoRepository;
+    private final ReportRepository reportRepository;
+    private final ReportMaterialRepository reportMaterialRepository;
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        initStadiums();
+        initReports();
+    }
+
+    private void initStadiums() {
         if (stadiumRepository.count() > 0) {
             return;
         }
@@ -39,5 +59,104 @@ public class DataInitializer implements ApplicationRunner {
                         .address("경기도 수원시 팔달구 효원로 241 테리우스 수원 실내테니스장")
                         .build()
         ));
+    }
+
+    private void initReports() {
+        String scoringStrokeUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/06_scoring_stroke.mp4";
+        String unforcedErrorUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/01_unforced_error.mp4";
+        MatchVideo matchVideo = getOrCreateMatchVideo(scoringStrokeUrl);
+
+        if (reportRepository.count() > 0) {
+            return;
+        }
+
+        Report playerOneReport = Report.builder()
+                .shotType(ShotType.FOREHAND)
+                .maxSpeed(128.7)
+                .shoulderRotationAngle(74.2)
+                .spineRotationAngle(41.5)
+                .waistRotationAngle(58.8)
+                .averageRallyCount(5.6)
+                .maxRallyCount(13)
+                .minRallyCount(2)
+                .totalShotCount(86)
+                .improvementPoint("임팩트 직전 상체가 먼저 열리는 경향이 있어 허리 회전 타이밍을 늦추는 연습이 필요합니다.")
+                .firstServeSuccessRate(68.5)
+                .secondServeSuccessRate(82.1)
+                .firstServeRate(71.3)
+                .target(ReportTarget.PLAYER_ONE)
+                .build();
+        playerOneReport.assignMatchVideo(matchVideo);
+        reportRepository.save(playerOneReport);
+
+        Report playerTwoReport = Report.builder()
+                .shotType(ShotType.BACKHAND)
+                .maxSpeed(119.4)
+                .shoulderRotationAngle(69.7)
+                .spineRotationAngle(38.3)
+                .waistRotationAngle(53.6)
+                .averageRallyCount(4.9)
+                .maxRallyCount(11)
+                .minRallyCount(1)
+                .totalShotCount(79)
+                .improvementPoint("백핸드 수비 전환 시 체중이 뒤에 남아 있어 스텝 진입과 팔로스루 안정화가 필요합니다.")
+                .firstServeSuccessRate(61.8)
+                .secondServeSuccessRate(76.4)
+                .firstServeRate(66.9)
+                .target(ReportTarget.PLAYER_TWO)
+                .build();
+        playerTwoReport.assignMatchVideo(matchVideo);
+        reportRepository.save(playerTwoReport);
+
+        reportMaterialRepository.saveAll(List.of(
+                ReportMaterial.create(
+                        playerOneReport,
+                        ReportMaterialType.MOTION,
+                        scoringStrokeUrl
+                ),
+                ReportMaterial.create(
+                        playerOneReport,
+                        ReportMaterialType.WINNING_SHOT,
+                        scoringStrokeUrl
+                ),
+                ReportMaterial.create(
+                        playerOneReport,
+                        ReportMaterialType.WORST_SHOT,
+                        unforcedErrorUrl
+                ),
+                ReportMaterial.create(
+                        playerTwoReport,
+                        ReportMaterialType.MOTION,
+                        scoringStrokeUrl
+                ),
+                ReportMaterial.create(
+                        playerTwoReport,
+                        ReportMaterialType.WINNING_SHOT,
+                        unforcedErrorUrl
+                ),
+                ReportMaterial.create(
+                        playerTwoReport,
+                        ReportMaterialType.WORST_SHOT,
+                        scoringStrokeUrl
+                )
+        ));
+    }
+
+    private MatchVideo getOrCreateMatchVideo(String videoUrl) {
+        return matchVideoRepository.findAll().stream()
+                .findFirst()
+                .orElseGet(() -> {
+                    Stadium stadium = stadiumRepository.findAll().getFirst();
+                    MatchVideo matchVideo = MatchVideo.builder()
+                            .videoUrl(videoUrl)
+                            .matchDate(LocalDate.of(2026, 5, 16))
+                            .startTime(LocalTime.of(14, 0))
+                            .endTime(LocalTime.of(15, 20))
+                            .matchType(MatchType.SINGLES)
+                            .reportRequested(true)
+                            .build();
+                    matchVideo.assignStadium(stadium);
+                    return matchVideoRepository.save(matchVideo);
+                });
     }
 }
