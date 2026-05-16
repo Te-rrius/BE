@@ -3,10 +3,12 @@ package hansung.org.terrius.domain.report.service;
 import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
 import hansung.org.terrius.domain.report.entity.Report;
 import hansung.org.terrius.domain.report.entity.ReportOwnership;
+import hansung.org.terrius.domain.report.entity.enums.ReportSortType;
 import hansung.org.terrius.domain.report.exception.ReportErrorCode;
 import hansung.org.terrius.domain.report.exception.ReportException;
 import hansung.org.terrius.domain.report.repository.ReportOwnershipRepository;
 import hansung.org.terrius.domain.report.repository.ReportRepository;
+import hansung.org.terrius.domain.report.web.dto.MyReportRes;
 import hansung.org.terrius.domain.user.entity.User;
 import hansung.org.terrius.domain.user.exception.UserErrorCode;
 import hansung.org.terrius.domain.user.exception.UserException;
@@ -48,5 +50,20 @@ public class ReportServiceImpl implements ReportService {
                 .toList();
 
         reportOwnershipRepository.saveAll(reportOwnerships);
+    }
+
+    @Override
+    public List<MyReportRes> getMyReports(Long userId, ReportSortType sort) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserException(UserErrorCode.USER_NOT_FOUND);
+        }
+
+        List<ReportOwnership> reportOwnerships = sort == ReportSortType.OLDEST
+                ? reportOwnershipRepository.findAllByUserIdOrderByOldest(userId)
+                : reportOwnershipRepository.findAllByUserIdOrderByLatest(userId);
+
+        return reportOwnerships.stream()
+                .map(MyReportRes::from)
+                .toList();
     }
 }
