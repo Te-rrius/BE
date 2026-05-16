@@ -3,12 +3,14 @@ package hansung.org.terrius.domain.report.service;
 import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
 import hansung.org.terrius.domain.report.entity.Report;
 import hansung.org.terrius.domain.report.entity.ReportOwnership;
+import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
 import hansung.org.terrius.domain.report.entity.enums.ReportSortType;
 import hansung.org.terrius.domain.report.exception.ReportErrorCode;
 import hansung.org.terrius.domain.report.exception.ReportException;
 import hansung.org.terrius.domain.report.repository.ReportOwnershipRepository;
 import hansung.org.terrius.domain.report.repository.ReportRepository;
 import hansung.org.terrius.domain.report.web.dto.MyReportRes;
+import hansung.org.terrius.domain.report.web.dto.ReportDetailRes;
 import hansung.org.terrius.domain.user.entity.User;
 import hansung.org.terrius.domain.user.exception.UserErrorCode;
 import hansung.org.terrius.domain.user.exception.UserException;
@@ -65,5 +67,13 @@ public class ReportServiceImpl implements ReportService {
         return reportOwnerships.stream()
                 .map(MyReportRes::from)
                 .toList();
+    }
+
+    @Override
+    public ReportDetailRes getReportDetail(Long matchVideoId, ReportTarget target) {
+        Report report = reportRepository.findDetailByMatchVideoIdAndTarget(matchVideoId, target)
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+
+        return ReportDetailRes.from(report);
     }
 }

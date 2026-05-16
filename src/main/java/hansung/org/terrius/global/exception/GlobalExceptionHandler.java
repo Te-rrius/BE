@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -56,7 +57,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse<?>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         log.error("MethodArgumentTypeMismatchException : {}", e.getMessage(), e);
-        ErrorResponse<?> errorResponse = ErrorResponse.from(ErrorResponseCode.INVALID_HTTP_MESSAGE_PARAMETER);
+        ErrorResponse<?> errorResponse = ErrorResponse.of(
+                ErrorResponseCode.INVALID_HTTP_MESSAGE_PARAMETER,
+                "요청 파라미터 값이 올바르지 않습니다."
+        );
+        return ResponseEntity.status(errorResponse.getHttpStatus()).body(errorResponse);
+    }
+
+    // 필수 Request Parameter 누락 시 발생
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse<?>> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        log.error("MissingServletRequestParameterException : {}", e.getMessage(), e);
+        ErrorResponse<?> errorResponse = ErrorResponse.of(
+                ErrorResponseCode.INVALID_HTTP_MESSAGE_PARAMETER,
+                "필수 요청 파라미터가 누락되었습니다: " + e.getParameterName()
+        );
         return ResponseEntity.status(errorResponse.getHttpStatus()).body(errorResponse);
     }
 

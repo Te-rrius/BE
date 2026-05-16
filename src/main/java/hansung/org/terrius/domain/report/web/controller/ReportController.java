@@ -1,8 +1,10 @@
 package hansung.org.terrius.domain.report.web.controller;
 
+import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
 import hansung.org.terrius.domain.report.entity.enums.ReportSortType;
 import hansung.org.terrius.domain.report.service.ReportService;
 import hansung.org.terrius.domain.report.web.dto.MyReportRes;
+import hansung.org.terrius.domain.report.web.dto.ReportDetailRes;
 import hansung.org.terrius.global.jwt.CustomUserDetails;
 import hansung.org.terrius.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,15 @@ public class ReportController {
             @RequestParam(defaultValue = "LATEST") ReportSortType sort
     ) {
         List<MyReportRes> res = reportService.getMyReports(customUserDetails.getUser().getId(), sort);
+        return ResponseEntity.ok(SuccessResponse.from(res));
+    }
+
+    @GetMapping("/match-videos/{matchVideoId}")
+    public ResponseEntity<SuccessResponse<ReportDetailRes>> getReportDetail(
+            @PathVariable Long matchVideoId,
+            @RequestParam ReportTarget target
+    ) {
+        ReportDetailRes res = reportService.getReportDetail(matchVideoId, target);
         return ResponseEntity.ok(SuccessResponse.from(res));
     }
 }
