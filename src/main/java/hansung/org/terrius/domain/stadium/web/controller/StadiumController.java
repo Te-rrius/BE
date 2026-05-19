@@ -3,8 +3,10 @@ package hansung.org.terrius.domain.stadium.web.controller;
 import hansung.org.terrius.domain.stadium.service.StadiumService;
 import hansung.org.terrius.domain.stadium.web.dto.CalendarDateRes;
 import hansung.org.terrius.domain.stadium.web.dto.StadiumRes;
+import hansung.org.terrius.domain.stadium.web.dto.MatchVideoRes;
 import hansung.org.terrius.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -37,6 +40,19 @@ public class StadiumController {
             @PathVariable Long stadiumId
     ) {
         List<CalendarDateRes> res = stadiumService.getReportDownloadDates(stadiumId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.ok(res));
+    }
+
+    @GetMapping("/{stadiumId}/report-downloads/times")
+    public ResponseEntity<SuccessResponse<List<MatchVideoRes>>> getReportDownloadTimes(
+            @PathVariable Long stadiumId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) Integer courtNumber
+    ) {
+        List<MatchVideoRes> res = stadiumService.getReportDownloadTimes(stadiumId, date, courtNumber);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
