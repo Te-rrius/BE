@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -71,15 +72,17 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         List<Stadium> stadiums = stadiumRepository.findAll();
+        List<Court> courts = new ArrayList<>();
         for (Stadium stadium : stadiums) {
             for (int i = 1; i <= 4; i++) {
                 Court court = Court.builder()
                         .courtNumber(i)
                         .build();
                 court.assignStadium(stadium);
-                courtRepository.save(court);
+                courts.add(court);
             }
         }
+        courtRepository.saveAll(courts);
     }
 
     private void initReports() {
