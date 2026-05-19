@@ -10,7 +10,9 @@ import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
 import hansung.org.terrius.domain.report.entity.enums.ShotType;
 import hansung.org.terrius.domain.report.repository.ReportMaterialRepository;
 import hansung.org.terrius.domain.report.repository.ReportRepository;
+import hansung.org.terrius.domain.stadium.entity.Court;
 import hansung.org.terrius.domain.stadium.entity.Stadium;
+import hansung.org.terrius.domain.stadium.repository.CourtRepository;
 import hansung.org.terrius.domain.stadium.repository.StadiumRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
@@ -27,6 +29,7 @@ import java.util.List;
 public class DataInitializer implements ApplicationRunner {
 
     private final StadiumRepository stadiumRepository;
+    private final CourtRepository courtRepository;
     private final MatchVideoRepository matchVideoRepository;
     private final ReportRepository reportRepository;
     private final ReportMaterialRepository reportMaterialRepository;
@@ -35,6 +38,7 @@ public class DataInitializer implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         initStadiums();
+        initCourts();
         initReports();
     }
 
@@ -59,6 +63,23 @@ public class DataInitializer implements ApplicationRunner {
                         .address("경기도 수원시 팔달구 효원로 241 테리우스 수원 실내테니스장")
                         .build()
         ));
+    }
+
+    private void initCourts() {
+        if (courtRepository.count() > 0) {
+            return;
+        }
+
+        List<Stadium> stadiums = stadiumRepository.findAll();
+        for (Stadium stadium : stadiums) {
+            for (int i = 1; i <= 4; i++) {
+                Court court = Court.builder()
+                        .courtNumber(i)
+                        .build();
+                court.assignStadium(stadium);
+                courtRepository.save(court);
+            }
+        }
     }
 
     private void initReports() {
@@ -146,7 +167,7 @@ public class DataInitializer implements ApplicationRunner {
         return matchVideoRepository.findAll().stream()
                 .findFirst()
                 .orElseGet(() -> {
-                    Stadium stadium = stadiumRepository.findAll().getFirst();
+                    Court court = courtRepository.findAll().getFirst();
                     MatchVideo matchVideo = MatchVideo.builder()
                             .videoUrl(videoUrl)
                             .matchDate(LocalDate.of(2026, 5, 16))
@@ -155,7 +176,7 @@ public class DataInitializer implements ApplicationRunner {
                             .matchType(MatchType.SINGLES)
                             .reportRequested(true)
                             .build();
-                    matchVideo.assignStadium(stadium);
+                    matchVideo.assignCourt(court);
                     return matchVideoRepository.save(matchVideo);
                 });
     }

@@ -1,6 +1,5 @@
 package hansung.org.terrius.domain.stadium.entity;
 
-import hansung.org.terrius.domain.match.entity.MatchVideo;
 import hansung.org.terrius.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,9 +48,10 @@ public class Stadium extends BaseEntity {
 
     @Builder.Default
     @OneToMany(mappedBy = "stadium")
-    private List<MatchVideo> matchVideos = new ArrayList<>();
+    private List<Court> courts = new ArrayList<>();
 
-    public void addMatchVideo(MatchVideo matchVideo) {
-        this.matchVideos.add(matchVideo);
+    // -------------------- 메서드 --------------------
+    public void addCourt(Court court) {
+        this.courts.add(court);
     }
 }
