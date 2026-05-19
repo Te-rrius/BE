@@ -2,7 +2,7 @@ package hansung.org.terrius.domain.match.entity;
 
 import hansung.org.terrius.domain.match.entity.enums.MatchType;
 import hansung.org.terrius.domain.report.entity.Report;
-import hansung.org.terrius.domain.stadium.entity.Stadium;
+import hansung.org.terrius.domain.stadium.entity.Court;
 import hansung.org.terrius.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -69,21 +69,22 @@ public class MatchVideo extends BaseEntity {
     @OneToMany(mappedBy = "matchVideo")
     private List<Report> reports = new ArrayList<>();
 
-    // 경기 영상이 촬영된 구장
+    // 경기 영상이 촬영된 코트
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stadium_id", nullable = false)
-    private Stadium stadium;
+    @JoinColumn(name = "court_id", nullable = false)
+    private Court court;
 
-    public void requestReport() {
-        this.reportRequested = true;
-    }
-
+    // -------------------- 메서드 --------------------
     public void addReport(Report report) {
         this.reports.add(report);
     }
 
-    public void assignStadium(Stadium stadium) {
-        this.stadium = stadium;
-        stadium.addMatchVideo(this);
+    public void assignCourt(Court court) {
+        this.court = court;
+        court.addMatchVideo(this);
+    }
+
+    public void requestReport() {
+        this.reportRequested = true;
     }
 }
