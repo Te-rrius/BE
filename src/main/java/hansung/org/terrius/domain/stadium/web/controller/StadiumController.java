@@ -1,11 +1,14 @@
 package hansung.org.terrius.domain.stadium.web.controller;
 
 import hansung.org.terrius.domain.stadium.service.StadiumService;
+import hansung.org.terrius.domain.stadium.web.dto.CalendarDateRes;
 import hansung.org.terrius.domain.stadium.web.dto.StadiumRes;
 import hansung.org.terrius.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,5 +30,16 @@ public class StadiumController {
     ) {
         List<StadiumRes> res = stadiumService.getStadiums(province, city, name);
         return ResponseEntity.ok(SuccessResponse.from(res));
+    }
+
+    @GetMapping("/{stadiumId}/report-downloads/dates")
+    public ResponseEntity<SuccessResponse<List<CalendarDateRes>>> getReportDownloadDates(
+            @PathVariable Long stadiumId
+    ) {
+        List<CalendarDateRes> res = stadiumService.getReportDownloadDates(stadiumId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.ok(res));
     }
 }
