@@ -19,7 +19,7 @@ public final class Validator {
             return;
         }
         if (courtNumber <= 0) {
-            throw new CourtException(CourtErrorCode.INVALID_COURT_NUMBER);
+            throw new CourtException(CourtErrorCode.COURT_INVALID_NUMBER);
         }
     }
 
@@ -30,7 +30,7 @@ public final class Validator {
         LocalDate today = LocalDate.now();
         LocalDate windowStart = today.minusDays(DATE_WINDOW_SIZE - 1);
         if (date.isBefore(windowStart) || date.isAfter(today)) {
-            throw new StadiumException(StadiumErrorCode.INVALID_DATE);
+            throw new StadiumException(StadiumErrorCode.STADIUM_INVALID_DATE);
         }
     }
 }
