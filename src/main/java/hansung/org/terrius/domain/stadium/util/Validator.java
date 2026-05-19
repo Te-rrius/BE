@@ -14,6 +14,10 @@ public final class Validator {
 
     public static final int DATE_WINDOW_SIZE = 8;
 
+    public static LocalDate getWindowStart(LocalDate today) {
+        return today.minusDays(DATE_WINDOW_SIZE - 1);
+    }
+
     public static void validateCourtNumber(Integer courtNumber) {
         if (courtNumber == null) {
             return;
@@ -23,12 +27,11 @@ public final class Validator {
         }
     }
 
-    public static void validateDateInWindow(LocalDate date) {
+    public static void validateDateInWindow(LocalDate date, LocalDate today) {
         if (date == null) {
             return;
         }
-        LocalDate today = LocalDate.now();
-        LocalDate windowStart = today.minusDays(DATE_WINDOW_SIZE - 1);
+        LocalDate windowStart = getWindowStart(today);
         if (date.isBefore(windowStart) || date.isAfter(today)) {
             throw new StadiumException(StadiumErrorCode.STADIUM_INVALID_DATE);
         }

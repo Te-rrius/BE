@@ -9,10 +9,10 @@ import hansung.org.terrius.domain.stadium.exception.StadiumErrorCode;
 import hansung.org.terrius.domain.stadium.exception.StadiumException;
 import hansung.org.terrius.domain.stadium.repository.CourtRepository;
 import hansung.org.terrius.domain.stadium.repository.StadiumRepository;
+import hansung.org.terrius.domain.stadium.util.Validator;
 import hansung.org.terrius.domain.stadium.web.dto.CalendarDateRes;
 import hansung.org.terrius.domain.stadium.web.dto.MatchVideoRes;
 import hansung.org.terrius.domain.stadium.web.dto.StadiumRes;
-import hansung.org.terrius.domain.stadium.util.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,7 +52,7 @@ public class StadiumServiceImpl implements StadiumService {
         }
 
         LocalDate today = LocalDate.now();
-        LocalDate start = today.minusDays(Validator.DATE_WINDOW_SIZE - 1);
+        LocalDate start = Validator.getWindowStart(today);
 
         Set<LocalDate> reportedDates = new HashSet<>(
                 matchVideoRepository.findReportedMatchDates(stadiumId, start, today)
@@ -66,11 +66,13 @@ public class StadiumServiceImpl implements StadiumService {
 
     @Override
     public List<MatchVideoRes> getReportDownloadTimes(Long stadiumId, LocalDate date, Integer courtNumber) {
+        LocalDate today = LocalDate.now();
+
         if (!stadiumRepository.existsById(stadiumId)) {
             throw new StadiumException(StadiumErrorCode.STADIUM_NOT_FOUND);
         }
 
-        Validator.validateDateInWindow(date);
+        Validator.validateDateInWindow(date, today);
         Validator.validateCourtNumber(courtNumber);
 
         if (courtNumber != null && !courtRepository.existsByStadiumIdAndCourtNumber(stadiumId, courtNumber)) {
@@ -78,7 +80,7 @@ public class StadiumServiceImpl implements StadiumService {
         }
 
         // 디폴트 값
-        LocalDate targetDate = (date != null) ? date : LocalDate.now();
+        LocalDate targetDate = (date != null) ? date : today;
         Integer targetCourtNumber = (courtNumber != null)
                 ? courtNumber
                 : courtRepository.findFirstByStadiumIdOrderByCourtNumberAsc(stadiumId)
