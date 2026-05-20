@@ -145,12 +145,13 @@ public class StadiumServiceImpl implements StadiumService {
             throw new StadiumException(StadiumErrorCode.STADIUM_NOT_FOUND);
         }
 
-        if (!matchVideoRepository.existsById(matchVideoId)) {
-            throw new MatchException(MatchErrorCode.MATCH_VIDEO_NOT_FOUND);
-        }
-
         MatchVideo matchVideo = matchVideoRepository.findByIdAndCourt_Stadium_Id(matchVideoId, stadiumId)
-                .orElseThrow(() -> new MatchException(MatchErrorCode.MATCH_VIDEO_STADIUM_MISMATCH));
+                .orElseThrow(() -> {
+                    if (!matchVideoRepository.existsById(matchVideoId)) {
+                        return new MatchException(MatchErrorCode.MATCH_VIDEO_NOT_FOUND);
+                    }
+                    return new MatchException(MatchErrorCode.MATCH_VIDEO_STADIUM_MISMATCH);
+                });
 
         if (Boolean.TRUE.equals(matchVideo.getReportRequested())) {
             throw new MatchException(MatchErrorCode.MATCH_VIDEO_ALREADY_REQUESTED);
