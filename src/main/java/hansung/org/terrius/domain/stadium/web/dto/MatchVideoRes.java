@@ -9,14 +9,16 @@ public record MatchVideoRes(
         Long matchVideoId,
         LocalTime startTime,
         LocalTime endTime,
-        MatchType matchType
+        MatchType matchType,
+        Boolean reportRequested
 ) {
     public static MatchVideoRes from(MatchVideo matchVideo) {
         return new MatchVideoRes(
                 matchVideo.getId(),
                 matchVideo.getStartTime(),
                 matchVideo.getEndTime(),
-                matchVideo.getMatchType()
+                matchVideo.getMatchType(),
+                matchVideo.getReportRequested()
         );
     }
 }
