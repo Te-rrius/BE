@@ -42,4 +42,18 @@ public interface MatchVideoRepository extends JpaRepository<MatchVideo, Long> {
     );
 
     Optional<MatchVideo> findByIdAndCourt_Stadium_Id(Long id, Long stadiumId);
+
+    @Query("""
+            select mv
+            from MatchVideo mv
+            where mv.court.stadium.id = :stadiumId
+              and mv.court.courtNumber = :courtNumber
+              and mv.matchDate = :date
+            order by mv.startTime asc
+            """)
+    List<MatchVideo> findAllByStadiumAndCourtAndDate(
+            @Param("stadiumId") Long stadiumId,
+            @Param("courtNumber") Integer courtNumber,
+            @Param("date") LocalDate date
+    );
 }

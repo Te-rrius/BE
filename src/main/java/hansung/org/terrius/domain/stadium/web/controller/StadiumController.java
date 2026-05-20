@@ -2,8 +2,9 @@ package hansung.org.terrius.domain.stadium.web.controller;
 
 import hansung.org.terrius.domain.stadium.service.StadiumService;
 import hansung.org.terrius.domain.stadium.web.dto.CalendarDateRes;
-import hansung.org.terrius.domain.stadium.web.dto.StadiumRes;
 import hansung.org.terrius.domain.stadium.web.dto.MatchVideoRes;
+import hansung.org.terrius.domain.stadium.web.dto.ReportRequestRes;
+import hansung.org.terrius.domain.stadium.web.dto.StadiumRes;
 import hansung.org.terrius.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -54,6 +55,19 @@ public class StadiumController {
             @RequestParam(required = false) Integer courtNumber
     ) {
         List<MatchVideoRes> res = stadiumService.getReportDownloadTimes(stadiumId, date, courtNumber);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.ok(res));
+    }
+
+    @GetMapping("/{stadiumId}/report-requests")
+    public ResponseEntity<SuccessResponse<ReportRequestRes>> getReportRequests(
+            @PathVariable Long stadiumId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) Integer courtNumber
+    ) {
+        ReportRequestRes res = stadiumService.getReportRequests(stadiumId, date, courtNumber);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

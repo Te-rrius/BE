@@ -15,6 +15,7 @@ import hansung.org.terrius.domain.stadium.repository.StadiumRepository;
 import hansung.org.terrius.domain.stadium.util.Validator;
 import hansung.org.terrius.domain.stadium.web.dto.CalendarDateRes;
 import hansung.org.terrius.domain.stadium.web.dto.MatchVideoRes;
+import hansung.org.terrius.domain.stadium.web.dto.ReportRequestRes;
 import hansung.org.terrius.domain.stadium.web.dto.StadiumRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -55,13 +56,13 @@ public class StadiumServiceImpl implements StadiumService {
         }
 
         LocalDate today = LocalDate.now();
-        LocalDate start = Validator.getWindowStart(today);
+        LocalDate start = Validator.getWindowStart(today, Validator.DOWNLOAD_DATE_WINDOW_SIZE);
 
         Set<LocalDate> reportedDates = new HashSet<>(
                 matchVideoRepository.findReportedMatchDates(stadiumId, start, today)
         );
 
-        return IntStream.range(0, Validator.DATE_WINDOW_SIZE)
+        return IntStream.range(0, Validator.DOWNLOAD_DATE_WINDOW_SIZE)
                 .mapToObj(start::plusDays)
                 .map(date -> CalendarDateRes.of(date, reportedDates.contains(date)))
                 .toList();
@@ -75,7 +76,7 @@ public class StadiumServiceImpl implements StadiumService {
             throw new StadiumException(StadiumErrorCode.STADIUM_NOT_FOUND);
         }
 
-        Validator.validateDateInWindow(date, today);
+        Validator.validateDateInWindow(date, today, Validator.DOWNLOAD_DATE_WINDOW_SIZE);
         Validator.validateCourtNumber(courtNumber);
 
         if (courtNumber != null && !courtRepository.existsByStadiumIdAndCourtNumber(stadiumId, courtNumber)) {
@@ -94,6 +95,47 @@ public class StadiumServiceImpl implements StadiumService {
                 .stream()
                 .map(MatchVideoRes::from)
                 .toList();
+    }
+
+    @Override
+    public ReportRequestRes getReportRequests(Long stadiumId, LocalDate date, Integer courtNumber) {
+        LocalDate today = LocalDate.now();
+
+        if (!stadiumRepository.existsById(stadiumId)) {
+            throw new StadiumException(StadiumErrorCode.STADIUM_NOT_FOUND);
+        }
+
+        Validator.validateDateInWindow(date, today, Validator.REQUEST_DATE_WINDOW_SIZE);
+        Validator.validateCourtNumber(courtNumber);
+
+        if (courtNumber != null && !courtRepository.existsByStadiumIdAndCourtNumber(stadiumId, courtNumber)) {
+            throw new CourtException(CourtErrorCode.COURT_NOT_FOUND);
+        }
+
+        // 디폴트 값
+        LocalDate targetDate = (date != null) ? date : today;
+        Integer targetCourtNumber = (courtNumber != null)
+                ? courtNumber
+                : courtRepository.findFirstByStadiumIdOrderByCourtNumberAsc(stadiumId)
+                        .map(Court::getCourtNumber)
+                        .orElseThrow(() -> new CourtException(CourtErrorCode.COURT_NOT_FOUND));
+
+        LocalDate start = Validator.getWindowStart(today, Validator.REQUEST_DATE_WINDOW_SIZE);
+        Set<LocalDate> reportedDates = new HashSet<>(
+                matchVideoRepository.findReportedMatchDates(stadiumId, start, today)
+        );
+        List<CalendarDateRes> dates = IntStream.range(0, Validator.REQUEST_DATE_WINDOW_SIZE)
+                .mapToObj(start::plusDays)
+                .map(d -> CalendarDateRes.of(d, reportedDates.contains(d)))
+                .toList();
+
+        List<MatchVideoRes> times = matchVideoRepository
+                .findAllByStadiumAndCourtAndDate(stadiumId, targetCourtNumber, targetDate)
+                .stream()
+                .map(MatchVideoRes::from)
+                .toList();
+
+        return ReportRequestRes.of(dates, times);
     }
 
     @Override
