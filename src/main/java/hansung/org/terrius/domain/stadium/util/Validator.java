@@ -12,10 +12,11 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Validator {
 
-    public static final int DATE_WINDOW_SIZE = 8;
+    public static final int DOWNLOAD_DATE_WINDOW_SIZE = 8;
+    public static final int REQUEST_DATE_WINDOW_SIZE = 3;
 
-    public static LocalDate getWindowStart(LocalDate today) {
-        return today.minusDays(DATE_WINDOW_SIZE - 1);
+    public static LocalDate getWindowStart(LocalDate today, int windowSize) {
+        return today.minusDays(windowSize - 1);
     }
 
     public static void validateCourtNumber(Integer courtNumber) {
@@ -27,11 +28,11 @@ public final class Validator {
         }
     }
 
-    public static void validateDateInWindow(LocalDate date, LocalDate today) {
+    public static void validateDateInWindow(LocalDate date, LocalDate today, int windowSize) {
         if (date == null) {
             return;
         }
-        LocalDate windowStart = getWindowStart(today);
+        LocalDate windowStart = getWindowStart(today, windowSize);
         if (date.isBefore(windowStart) || date.isAfter(today)) {
             throw new StadiumException(StadiumErrorCode.STADIUM_INVALID_DATE);
         }
