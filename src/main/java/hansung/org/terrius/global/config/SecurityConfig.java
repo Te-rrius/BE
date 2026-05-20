@@ -33,7 +33,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS 프리플라이트 요청 허용
                         .requestMatchers(
                                 "/oauth2/**",
-                                "/login/oauth2/**"
+                                "/login/oauth2/**",
+                                "/stadiums"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
