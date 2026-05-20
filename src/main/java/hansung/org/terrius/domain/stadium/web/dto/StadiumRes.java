@@ -5,6 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record StadiumRes(
+        Long stadiumId,
         String name,
         String imageUrl,
         String province,
@@ -13,6 +14,7 @@ public record StadiumRes(
 ) {
     public static StadiumRes from(Stadium stadium) {
         return StadiumRes.builder()
+                .stadiumId(stadium.getId())
                 .name(stadium.getName())
                 .imageUrl(stadium.getImageUrl())
                 .province(stadium.getProvince())
