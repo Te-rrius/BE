@@ -6,6 +6,7 @@ import hansung.org.terrius.domain.report.entity.enums.ShotType;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Builder
@@ -13,6 +14,9 @@ public record ReportDetailRes(
         Long reportId,
         Long matchVideoId,
         LocalDate matchDate,
+        LocalTime startTime,
+        LocalTime endTime,
+        String stadiumName,
         ReportTarget target,
         String targetName,
         ShotType shotType,
@@ -36,6 +40,9 @@ public record ReportDetailRes(
                 .reportId(report.getId())
                 .matchVideoId(report.getMatchVideo().getId())
                 .matchDate(report.getMatchVideo().getMatchDate())
+                .startTime(report.getMatchVideo().getStartTime())
+                .endTime(report.getMatchVideo().getEndTime())
+                .stadiumName(report.getMatchVideo().getStadium().getName())
                 .target(report.getTarget())
                 .targetName(report.getTarget().getDescription())
                 .shotType(report.getShotType())
