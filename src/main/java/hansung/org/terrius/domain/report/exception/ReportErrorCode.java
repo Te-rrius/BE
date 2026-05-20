@@ -11,9 +11,8 @@ import static hansung.org.terrius.global.constant.StaticValue.NOT_FOUND;
 @AllArgsConstructor
 public enum ReportErrorCode implements BaseResponseCode {
 
-    MATCH_VIDEO_NOT_FOUND("REPORT_404_1", NOT_FOUND, "경기 영상을 찾을 수 없습니다."),
-    REPORT_NOT_FOUND("REPORT_404_2", NOT_FOUND, "리포트를 찾을 수 없습니다."),
-    REPORT_ACCESS_DENIED("REPORT_403_1", FORBIDDEN, "해당 리포트에 접근할 권한이 없습니다.");
+    REPORT_ACCESS_DENIED("REPORT_403_1", FORBIDDEN, "해당 리포트에 접근할 권한이 없습니다."),
+    REPORT_NOT_FOUND("REPORT_404_1", NOT_FOUND, "리포트를 찾을 수 없습니다.");
 
     private final String code;
     private final int httpStatus;
