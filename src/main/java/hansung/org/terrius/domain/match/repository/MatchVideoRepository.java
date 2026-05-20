@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MatchVideoRepository extends JpaRepository<MatchVideo, Long> {
@@ -39,4 +40,6 @@ public interface MatchVideoRepository extends JpaRepository<MatchVideo, Long> {
             @Param("courtNumber") Integer courtNumber,
             @Param("date") LocalDate date
     );
+
+    Optional<MatchVideo> findByIdAndCourt_Stadium_Id(Long id, Long stadiumId);
 }

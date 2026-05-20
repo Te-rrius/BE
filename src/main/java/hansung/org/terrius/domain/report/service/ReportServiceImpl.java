@@ -1,5 +1,7 @@
 package hansung.org.terrius.domain.report.service;
 
+import hansung.org.terrius.domain.match.exception.MatchErrorCode;
+import hansung.org.terrius.domain.match.exception.MatchException;
 import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
 import hansung.org.terrius.domain.report.entity.Report;
 import hansung.org.terrius.domain.report.entity.ReportOwnership;
@@ -40,7 +42,7 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         if (!matchVideoRepository.existsById(matchVideoId)) {
-            throw new ReportException(ReportErrorCode.MATCH_VIDEO_NOT_FOUND);
+            throw new MatchException(MatchErrorCode.MATCH_VIDEO_NOT_FOUND);
         }
 
         List<Report> reports = reportRepository.findAllByMatchVideoId(matchVideoId);

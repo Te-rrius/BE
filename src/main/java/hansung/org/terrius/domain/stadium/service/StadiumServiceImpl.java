@@ -1,5 +1,8 @@
 package hansung.org.terrius.domain.stadium.service;
 
+import hansung.org.terrius.domain.match.entity.MatchVideo;
+import hansung.org.terrius.domain.match.exception.MatchErrorCode;
+import hansung.org.terrius.domain.match.exception.MatchException;
 import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
 import hansung.org.terrius.domain.stadium.entity.Court;
 import hansung.org.terrius.domain.stadium.entity.Stadium;
@@ -91,6 +94,27 @@ public class StadiumServiceImpl implements StadiumService {
                 .stream()
                 .map(MatchVideoRes::from)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public void requestReport(Long stadiumId, Long matchVideoId) {
+        if (!stadiumRepository.existsById(stadiumId)) {
+            throw new StadiumException(StadiumErrorCode.STADIUM_NOT_FOUND);
+        }
+
+        if (!matchVideoRepository.existsById(matchVideoId)) {
+            throw new MatchException(MatchErrorCode.MATCH_VIDEO_NOT_FOUND);
+        }
+
+        MatchVideo matchVideo = matchVideoRepository.findByIdAndCourt_Stadium_Id(matchVideoId, stadiumId)
+                .orElseThrow(() -> new MatchException(MatchErrorCode.MATCH_VIDEO_STADIUM_MISMATCH));
+
+        if (Boolean.TRUE.equals(matchVideo.getReportRequested())) {
+            throw new MatchException(MatchErrorCode.MATCH_VIDEO_ALREADY_REQUESTED);
+        }
+
+        matchVideo.requestReport();
     }
 
 
