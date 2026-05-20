@@ -1,5 +1,7 @@
 package hansung.org.terrius.domain.report.web.dto;
 
+import hansung.org.terrius.domain.match.entity.MatchVideo;
+import hansung.org.terrius.domain.report.entity.Report;
 import hansung.org.terrius.domain.report.entity.ReportOwnership;
 import lombok.Builder;
 
@@ -12,10 +14,13 @@ public record MyReportRes(
         LocalDate matchDate
 ) {
     public static MyReportRes from(ReportOwnership reportOwnership) {
+        Report report = reportOwnership.getReport();
+        MatchVideo matchVideo = report.getMatchVideo();
+
         return MyReportRes.builder()
-                .reportId(reportOwnership.getReport().getId())
-                .matchVideoId(reportOwnership.getReport().getMatchVideo().getId())
-                .matchDate(reportOwnership.getReport().getMatchVideo().getMatchDate())
+                .reportId(report.getId())
+                .matchVideoId(matchVideo.getId())
+                .matchDate(matchVideo.getMatchDate())
                 .build();
     }
 }

@@ -1,5 +1,6 @@
 package hansung.org.terrius.domain.report.web.dto;
 
+import hansung.org.terrius.domain.match.entity.MatchVideo;
 import hansung.org.terrius.domain.report.entity.Report;
 import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
 import hansung.org.terrius.domain.report.entity.enums.ShotType;
@@ -42,7 +43,7 @@ public record ReportDetailRes(
                 .matchDate(report.getMatchVideo().getMatchDate())
                 .startTime(report.getMatchVideo().getStartTime())
                 .endTime(report.getMatchVideo().getEndTime())
-                .stadiumName(report.getMatchVideo().getStadium().getName())
+                .stadiumName(extractStadiumName(report.getMatchVideo()))
                 .target(report.getTarget())
                 .targetName(report.getTarget().getDescription())
                 .shotType(report.getShotType())
@@ -63,5 +64,18 @@ public record ReportDetailRes(
                         .map(ReportMaterialRes::from)
                         .toList())
                 .build();
+    }
+
+    private static String extractStadiumName(MatchVideo matchVideo) {
+        try {
+            Object stadium = matchVideo.getClass().getMethod("getStadium").invoke(matchVideo);
+            if (stadium == null) {
+                return null;
+            }
+            Object name = stadium.getClass().getMethod("getName").invoke(stadium);
+            return name == null ? null : name.toString();
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
     }
 }
