@@ -16,6 +16,7 @@ import hansung.org.terrius.domain.stadium.util.Validator;
 import hansung.org.terrius.domain.stadium.web.dto.CalendarDateRes;
 import hansung.org.terrius.domain.stadium.web.dto.MatchVideoRes;
 import hansung.org.terrius.domain.stadium.web.dto.ReportRequestRes;
+import hansung.org.terrius.domain.stadium.web.dto.StadiumDetailRes;
 import hansung.org.terrius.domain.stadium.web.dto.StadiumRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,17 @@ public class StadiumServiceImpl implements StadiumService {
         return stadiums.stream()
                 .map(StadiumRes::from)
                 .toList();
+    }
+
+    @Override
+    public StadiumDetailRes getStadiumDetail(Long stadiumId) {
+        if (!stadiumRepository.existsById(stadiumId)) {
+            throw new StadiumException(StadiumErrorCode.STADIUM_NOT_FOUND);
+        }
+
+        return StadiumDetailRes.from(
+                courtRepository.findAllByStadiumIdOrderByCourtNumberAsc(stadiumId)
+        );
     }
 
     @Override

@@ -4,6 +4,7 @@ import hansung.org.terrius.domain.stadium.service.StadiumService;
 import hansung.org.terrius.domain.stadium.web.dto.CalendarDateRes;
 import hansung.org.terrius.domain.stadium.web.dto.MatchVideoRes;
 import hansung.org.terrius.domain.stadium.web.dto.ReportRequestRes;
+import hansung.org.terrius.domain.stadium.web.dto.StadiumDetailRes;
 import hansung.org.terrius.domain.stadium.web.dto.StadiumRes;
 import hansung.org.terrius.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,17 @@ public class StadiumController {
     ) {
         List<StadiumRes> res = stadiumService.getStadiums(province, city, name);
         return ResponseEntity.ok(SuccessResponse.from(res));
+    }
+
+    @GetMapping("/{stadiumId}")
+    public ResponseEntity<SuccessResponse<StadiumDetailRes>> getStadiumDetail(
+            @PathVariable Long stadiumId
+    ) {
+        StadiumDetailRes res = stadiumService.getStadiumDetail(stadiumId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.ok(res));
     }
 
     @GetMapping("/{stadiumId}/report-downloads/dates")

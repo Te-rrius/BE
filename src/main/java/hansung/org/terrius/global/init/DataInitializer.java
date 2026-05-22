@@ -61,7 +61,14 @@ public class DataInitializer implements ApplicationRunner {
                         .imageUrl("https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/tennis_3.png")
                         .province("경기도")
                         .city("수원시 팔달구")
-                        .address("경기도 수원시 팔달구 효원로 241")
+                        .address("경기도 수원시 팔달구 효원로 241 테리우스 수원 실내테니스장")
+                        .build(),
+                Stadium.builder()
+                        .name("테리우스 강남 테니스클럽")
+                        .imageUrl("https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/tennis_2.jpg")
+                        .province("서울특별시")
+                        .city("강남구")
+                        .address("서울특별시 강남구 테헤란로 123 테리우스 강남 테니스클럽")
                         .build()
         ));
     }
@@ -72,9 +79,13 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         List<Stadium> stadiums = stadiumRepository.findAll();
+        // 구장별 코트 수: 1번 구장 = 4개, 2번 구장 = 3개, 3번 구장 = 5개
+        int[] courtCounts = {4, 3, 5};
         List<Court> courts = new ArrayList<>();
-        for (Stadium stadium : stadiums) {
-            for (int i = 1; i <= 4; i++) {
+        for (int s = 0; s < stadiums.size(); s++) {
+            Stadium stadium = stadiums.get(s);
+            int count = (s < courtCounts.length) ? courtCounts[s] : 4;
+            for (int i = 1; i <= count; i++) {
                 Court court = Court.builder()
                         .courtNumber(i)
                         .build();
