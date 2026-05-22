@@ -31,10 +31,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // OAuth2 로그인 과정에서 세션 사용 허용
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS 프리플라이트 요청 허용
+                        .requestMatchers(HttpMethod.GET, "/stadiums", "/stadiums/**").permitAll()
                         .requestMatchers(
                                 "/oauth2/**",
-                                "/login/oauth2/**",
-                                "/stadiums"
+                                "/login/oauth2/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
