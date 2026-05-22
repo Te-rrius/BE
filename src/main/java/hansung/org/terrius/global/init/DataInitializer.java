@@ -54,7 +54,7 @@ public class DataInitializer implements ApplicationRunner {
                         .imageUrl("https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/tennis_1.jpg")
                         .province("서울특별시")
                         .city("송파구")
-                        .address("서울특별시 송파구 올림픽로 25 테리우스 잠실 테니스파크")
+                        .address("서울특별시 송파구 올림픽로 25")
                         .build(),
                 Stadium.builder()
                         .name("테리우스 수원 실내테니스장")
