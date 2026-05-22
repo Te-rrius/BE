@@ -51,7 +51,7 @@ public class StadiumServiceImpl implements StadiumService {
     }
 
     @Override
-    public StadiumDetailRes getStadiumCourts(Long stadiumId) {
+    public StadiumDetailRes getStadiumDetail(Long stadiumId) {
         if (!stadiumRepository.existsById(stadiumId)) {
             throw new StadiumException(StadiumErrorCode.STADIUM_NOT_FOUND);
         }

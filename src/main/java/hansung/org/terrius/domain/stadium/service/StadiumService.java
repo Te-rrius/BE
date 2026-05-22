@@ -13,7 +13,7 @@ public interface StadiumService {
 
     List<StadiumRes> getStadiums(String province, String city, String name);
 
-    StadiumDetailRes getStadiumCourts(Long stadiumId);
+    StadiumDetailRes getStadiumDetail(Long stadiumId);
 
     List<CalendarDateRes> getReportDownloadDates(Long stadiumId);
 

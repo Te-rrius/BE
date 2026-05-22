@@ -39,10 +39,10 @@ public class StadiumController {
     }
 
     @GetMapping("/{stadiumId}")
-    public ResponseEntity<SuccessResponse<StadiumDetailRes>> getStadiumCourts(
+    public ResponseEntity<SuccessResponse<StadiumDetailRes>> getStadiumDetail(
             @PathVariable Long stadiumId
     ) {
-        StadiumDetailRes res = stadiumService.getStadiumCourts(stadiumId);
+        StadiumDetailRes res = stadiumService.getStadiumDetail(stadiumId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
