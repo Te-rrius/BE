@@ -62,16 +62,29 @@ public class StadiumServiceImpl implements StadiumService {
     }
 
     @Override
-    public List<CalendarDateRes> getReportDownloadDates(Long stadiumId) {
+    public List<CalendarDateRes> getReportDownloadDates(Long stadiumId, Integer courtNumber) {
         if (!stadiumRepository.existsById(stadiumId)) {
             throw new StadiumException(StadiumErrorCode.STADIUM_NOT_FOUND);
         }
+
+        Validator.validateCourtNumber(courtNumber);
+
+        if (courtNumber != null && !courtRepository.existsByStadiumIdAndCourtNumber(stadiumId, courtNumber)) {
+            throw new CourtException(CourtErrorCode.COURT_NOT_FOUND);
+        }
+
+        // 디폴트 값: 가장 낮은 코트 번호
+        Integer targetCourtNumber = (courtNumber != null)
+                ? courtNumber
+                : courtRepository.findFirstByStadiumIdOrderByCourtNumberAsc(stadiumId)
+                        .map(Court::getCourtNumber)
+                        .orElseThrow(() -> new CourtException(CourtErrorCode.COURT_NOT_FOUND));
 
         LocalDate today = LocalDate.now();
         LocalDate start = Validator.getWindowStart(today, Validator.DOWNLOAD_DATE_WINDOW_SIZE);
 
         Set<LocalDate> reportedDates = new HashSet<>(
-                matchVideoRepository.findReportedMatchDates(stadiumId, start, today)
+                matchVideoRepository.findReportedMatchDatesByCourt(stadiumId, targetCourtNumber, start, today)
         );
 
         return IntStream.range(0, Validator.DOWNLOAD_DATE_WINDOW_SIZE)
