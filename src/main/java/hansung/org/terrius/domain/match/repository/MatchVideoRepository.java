@@ -27,6 +27,21 @@ public interface MatchVideoRepository extends JpaRepository<MatchVideo, Long> {
     );
 
     @Query("""
+            select distinct mv.matchDate
+            from MatchVideo mv
+            where mv.court.stadium.id = :stadiumId
+              and mv.court.courtNumber = :courtNumber
+              and mv.matchDate between :start and :end
+              and mv.reportRequested = true
+            """)
+    List<LocalDate> findReportedMatchDatesByCourt(
+            @Param("stadiumId") Long stadiumId,
+            @Param("courtNumber") Integer courtNumber,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end
+    );
+
+    @Query("""
             select mv
             from MatchVideo mv
             where mv.court.stadium.id = :stadiumId

@@ -51,9 +51,10 @@ public class StadiumController {
 
     @GetMapping("/{stadiumId}/report-downloads/dates")
     public ResponseEntity<SuccessResponse<List<CalendarDateRes>>> getReportDownloadDates(
-            @PathVariable Long stadiumId
+            @PathVariable Long stadiumId,
+            @RequestParam(required = false) Integer courtNumber
     ) {
-        List<CalendarDateRes> res = stadiumService.getReportDownloadDates(stadiumId);
+        List<CalendarDateRes> res = stadiumService.getReportDownloadDates(stadiumId, courtNumber);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

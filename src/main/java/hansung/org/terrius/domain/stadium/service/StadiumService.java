@@ -15,7 +15,7 @@ public interface StadiumService {
 
     StadiumDetailRes getStadiumDetail(Long stadiumId);
 
-    List<CalendarDateRes> getReportDownloadDates(Long stadiumId);
+    List<CalendarDateRes> getReportDownloadDates(Long stadiumId, Integer courtNumber);
 
     List<MatchVideoRes> getReportDownloadTimes(Long stadiumId, LocalDate date, Integer courtNumber);
 
