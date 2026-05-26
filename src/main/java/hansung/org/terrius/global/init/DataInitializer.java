@@ -3,12 +3,13 @@ package hansung.org.terrius.global.init;
 import hansung.org.terrius.domain.match.entity.MatchVideo;
 import hansung.org.terrius.domain.match.entity.enums.MatchType;
 import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
+import hansung.org.terrius.domain.report.entity.HighlightVideo;
+import hansung.org.terrius.domain.report.entity.MotionAnalysis;
 import hansung.org.terrius.domain.report.entity.Report;
-import hansung.org.terrius.domain.report.entity.ReportMaterial;
-import hansung.org.terrius.domain.report.entity.enums.ReportMaterialType;
+import hansung.org.terrius.domain.report.entity.enums.HighlightVideoType;
 import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
 import hansung.org.terrius.domain.report.entity.enums.ShotType;
-import hansung.org.terrius.domain.report.repository.ReportMaterialRepository;
+import hansung.org.terrius.domain.report.repository.HighlightVideoRepository;
 import hansung.org.terrius.domain.report.repository.ReportRepository;
 import hansung.org.terrius.domain.stadium.entity.Court;
 import hansung.org.terrius.domain.stadium.entity.Stadium;
@@ -33,7 +34,7 @@ public class DataInitializer implements ApplicationRunner {
     private final CourtRepository courtRepository;
     private final MatchVideoRepository matchVideoRepository;
     private final ReportRepository reportRepository;
-    private final ReportMaterialRepository reportMaterialRepository;
+    private final HighlightVideoRepository highlightVideoRepository;
 
     @Override
     @Transactional
@@ -99,6 +100,12 @@ public class DataInitializer implements ApplicationRunner {
     private void initReports() {
         String scoringStrokeUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/06_scoring_stroke.mp4";
         String unforcedErrorUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/01_unforced_error.mp4";
+        String playerABestUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_A_best_01.mp4";
+        String playerABestUrl2 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_A_best_02.mp4";
+        String playerABestUrl3 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_A_best_03.mp4";
+        String playerAWorstUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_a_worst_01.mp4";
+        String playerBBestUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_b_best_01.mp4";
+        String playerBWorstUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_b_worst_01.mp4";
         MatchVideo matchVideo = getOrCreateMatchVideo(scoringStrokeUrl);
 
         if (reportRepository.count() > 0) {
@@ -106,74 +113,70 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         Report playerOneReport = Report.builder()
-                .shotType(ShotType.FOREHAND)
                 .maxSpeed(128.7)
-                .shoulderRotationAngle(74.2)
-                .spineRotationAngle(41.5)
-                .waistRotationAngle(58.8)
                 .averageRallyCount(5.6)
                 .maxRallyCount(13)
                 .minRallyCount(2)
                 .totalShotCount(86)
-                .improvementPoint("임팩트 직전 상체가 먼저 열리는 경향이 있어 허리 회전 타이밍을 늦추는 연습이 필요합니다.")
                 .firstServeSuccessRate(68.5)
                 .secondServeSuccessRate(82.1)
                 .firstServeRate(71.3)
                 .target(ReportTarget.PLAYER_ONE)
                 .build();
         playerOneReport.assignMatchVideo(matchVideo);
+        MotionAnalysis.create(
+                playerOneReport,
+                scoringStrokeUrl,
+                ShotType.FOREHAND,
+                74.2,
+                41.5,
+                58.8,
+                "임팩트 직전 상체가 먼저 열리는 경향이 있어 허리 회전 타이밍을 늦추는 연습이 필요합니다.",
+                86.5
+        );
+        MotionAnalysis.create(
+                playerOneReport,
+                scoringStrokeUrl,
+                ShotType.FOREHAND,
+                71.8,
+                39.6,
+                55.2,
+                "팔로스루 구간에서 라켓 궤도가 짧아지는 경향이 있어 임팩트 이후 스윙을 끝까지 가져가는 연습이 필요합니다.",
+                84.0
+        );
         reportRepository.save(playerOneReport);
 
         Report playerTwoReport = Report.builder()
-                .shotType(ShotType.BACKHAND)
                 .maxSpeed(119.4)
-                .shoulderRotationAngle(69.7)
-                .spineRotationAngle(38.3)
-                .waistRotationAngle(53.6)
                 .averageRallyCount(4.9)
                 .maxRallyCount(11)
                 .minRallyCount(1)
                 .totalShotCount(79)
-                .improvementPoint("백핸드 수비 전환 시 체중이 뒤에 남아 있어 스텝 진입과 팔로스루 안정화가 필요합니다.")
                 .firstServeSuccessRate(61.8)
                 .secondServeSuccessRate(76.4)
                 .firstServeRate(66.9)
                 .target(ReportTarget.PLAYER_TWO)
                 .build();
         playerTwoReport.assignMatchVideo(matchVideo);
+        MotionAnalysis.create(
+                playerTwoReport,
+                scoringStrokeUrl,
+                ShotType.BACKHAND,
+                69.7,
+                38.3,
+                53.6,
+                "백핸드 수비 전환 시 체중이 뒤에 남아 있어 스텝 진입과 팔로스루 안정화가 필요합니다.",
+                82.0
+        );
         reportRepository.save(playerTwoReport);
 
-        reportMaterialRepository.saveAll(List.of(
-                ReportMaterial.create(
-                        playerOneReport,
-                        ReportMaterialType.MOTION,
-                        scoringStrokeUrl
-                ),
-                ReportMaterial.create(
-                        playerOneReport,
-                        ReportMaterialType.WINNING_SHOT,
-                        scoringStrokeUrl
-                ),
-                ReportMaterial.create(
-                        playerOneReport,
-                        ReportMaterialType.WORST_SHOT,
-                        unforcedErrorUrl
-                ),
-                ReportMaterial.create(
-                        playerTwoReport,
-                        ReportMaterialType.MOTION,
-                        scoringStrokeUrl
-                ),
-                ReportMaterial.create(
-                        playerTwoReport,
-                        ReportMaterialType.WINNING_SHOT,
-                        unforcedErrorUrl
-                ),
-                ReportMaterial.create(
-                        playerTwoReport,
-                        ReportMaterialType.WORST_SHOT,
-                        scoringStrokeUrl
-                )
+        highlightVideoRepository.saveAll(List.of(
+                HighlightVideo.create(playerOneReport, HighlightVideoType.WINNING_SHOT, playerABestUrl),
+                HighlightVideo.create(playerOneReport, HighlightVideoType.WINNING_SHOT, playerABestUrl2),
+                HighlightVideo.create(playerOneReport, HighlightVideoType.WINNING_SHOT, playerABestUrl3),
+                HighlightVideo.create(playerOneReport, HighlightVideoType.WORST_SHOT, playerAWorstUrl),
+                HighlightVideo.create(playerTwoReport, HighlightVideoType.WINNING_SHOT, playerBBestUrl),
+                HighlightVideo.create(playerTwoReport, HighlightVideoType.WORST_SHOT, playerBWorstUrl)
         ));
     }
 

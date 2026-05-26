@@ -2,8 +2,8 @@ package hansung.org.terrius.domain.report.entity;
 
 import hansung.org.terrius.domain.match.entity.MatchVideo;
 import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
-import hansung.org.terrius.domain.report.entity.enums.ShotType;
 import hansung.org.terrius.global.entity.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -22,8 +22,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Getter
@@ -37,26 +37,9 @@ public class Report extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 분석 대상이 되는 대표 샷 유형
-    @Enumerated(EnumType.STRING)
-    @Column(name = "shot_type", nullable = false)
-    private ShotType shotType;
-
     // 경기 또는 분석 구간에서 기록된 최고 타구 속도
     @Column(name = "max_speed", nullable = false)
     private Double maxSpeed;
-
-    // 샷 동작 중 어깨가 회전한 각도
-    @Column(name = "shoulder_rotation_angle", nullable = false)
-    private Double shoulderRotationAngle;
-
-    // 샷 동작 중 척추 축이 회전한 각도
-    @Column(name = "spine_rotation_angle", nullable = false)
-    private Double spineRotationAngle;
-
-    // 샷 동작 중 허리가 회전한 각도
-    @Column(name = "waist_rotation_angle", nullable = false)
-    private Double waistRotationAngle;
 
     // 경기 전체 랠리의 평균 지속 횟수
     @Column(name = "average_rally_count", nullable = false)
@@ -73,10 +56,6 @@ public class Report extends BaseEntity {
     // 분석 구간에서 집계된 전체 샷 수
     @Column(name = "total_shot_count", nullable = false)
     private Integer totalShotCount;
-
-    // 분석 결과 기반의 개선 포인트 설명
-    @Column(name = "improvement_point", nullable = false)
-    private String improvementPoint;
 
     // 퍼스트 서브 시도 중 성공한 비율
     @Column(name = "first_serve_success_rate", nullable = false)
@@ -105,15 +84,23 @@ public class Report extends BaseEntity {
     private List<ReportOwnership> reportOwnerships = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "report")
-    private List<ReportMaterial> reportMaterials = new ArrayList<>();
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HighlightVideo> highlightVideos = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MotionAnalysis> motionAnalyses = new ArrayList<>();
 
     public void addReportOwnership(ReportOwnership reportOwnership) {
         this.reportOwnerships.add(reportOwnership);
     }
 
-    public void addReportMaterial(ReportMaterial reportMaterial) {
-        this.reportMaterials.add(reportMaterial);
+    public void addHighlightVideo(HighlightVideo highlightVideo) {
+        this.highlightVideos.add(highlightVideo);
+    }
+
+    public void addMotionAnalysis(MotionAnalysis motionAnalysis) {
+        this.motionAnalyses.add(motionAnalysis);
     }
 
     public void assignMatchVideo(MatchVideo matchVideo) {
