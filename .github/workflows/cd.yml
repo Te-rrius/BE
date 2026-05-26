@@ -32,11 +32,13 @@ jobs:
             echo "${{ secrets.ENV_FILE }}" > /home/${{ secrets.SERVER_USER }}/.env
             echo "[1/3] Pull latest Docker image..."
             docker pull ${{ env.IMAGE }}:latest
+            docker network create terrius-net || true
 
             echo "[2/3] Restart container with new image..."
             docker stop terrius || true
             docker rm terrius || true
             docker run -d --name terrius \
+              --network terrius-net \
               --env-file /home/${{ secrets.SERVER_USER }}/.env \
               -p 8080:8080 \
               ${{ env.IMAGE }}:latest
