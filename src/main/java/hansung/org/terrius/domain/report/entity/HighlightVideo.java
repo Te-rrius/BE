@@ -1,6 +1,6 @@
 package hansung.org.terrius.domain.report.entity;
 
-import hansung.org.terrius.domain.report.entity.enums.ReportMaterialType;
+import hansung.org.terrius.domain.report.entity.enums.HighlightVideoType;
 import hansung.org.terrius.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,36 +24,33 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "report_materials")
-public class ReportMaterial extends BaseEntity {
+@Table(name = "highlight_videos")
+public class HighlightVideo extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 자료가 속한 리포트
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id", nullable = false)
     private Report report;
 
-    // 리포트 자료 유형
     @Enumerated(EnumType.STRING)
-    @Column(name = "material_type", nullable = false)
-    private ReportMaterialType materialType;
+    @Column(name = "video_type", nullable = false)
+    private HighlightVideoType videoType;
 
-    // S3 등에 저장된 영상 URL
     @Column(name = "video_url", nullable = false)
     private String videoUrl;
 
-    public static ReportMaterial create(Report report, ReportMaterialType materialType, String videoUrl) {
-        ReportMaterial reportMaterial = ReportMaterial.builder()
+    public static HighlightVideo create(Report report, HighlightVideoType videoType, String videoUrl) {
+        HighlightVideo highlightVideo = HighlightVideo.builder()
                 .report(report)
-                .materialType(materialType)
+                .videoType(videoType)
                 .videoUrl(videoUrl)
                 .build();
 
-        report.addReportMaterial(reportMaterial);
+        report.addHighlightVideo(highlightVideo);
 
-        return reportMaterial;
+        return highlightVideo;
     }
 }

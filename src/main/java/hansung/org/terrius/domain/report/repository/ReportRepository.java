@@ -18,7 +18,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             select distinct r
             from Report r
             join fetch r.matchVideo mv
-            left join fetch r.reportMaterials rm
+            left join fetch r.highlightVideos hv
             where mv.id = :matchVideoId
               and r.target = :target
             """)
