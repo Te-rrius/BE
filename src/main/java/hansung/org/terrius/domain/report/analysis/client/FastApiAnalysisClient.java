@@ -22,7 +22,6 @@ public class FastApiAnalysisClient {
     private final RestClient restClient;
 
     public FastApiAnalysisClient(
-            RestClient.Builder restClientBuilder,
             @Value("${fastapi.base-url}") String fastApiBaseUrl,
             @Value("${fastapi.connect-timeout-ms}") long connectTimeoutMs,
             @Value("${fastapi.read-timeout-ms}") long readTimeoutMs
@@ -31,7 +30,7 @@ public class FastApiAnalysisClient {
         requestFactory.setConnectTimeout(Duration.ofMillis(connectTimeoutMs));
         requestFactory.setReadTimeout(Duration.ofMillis(readTimeoutMs));
 
-        this.restClient = restClientBuilder
+        this.restClient = RestClient.builder()
                 .baseUrl(fastApiBaseUrl)
                 .requestFactory(requestFactory)
                 .build();
