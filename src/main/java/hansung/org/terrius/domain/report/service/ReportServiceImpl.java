@@ -3,6 +3,10 @@ package hansung.org.terrius.domain.report.service;
 import hansung.org.terrius.domain.match.exception.MatchErrorCode;
 import hansung.org.terrius.domain.match.exception.MatchException;
 import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
+import hansung.org.terrius.domain.report.analysis.client.FastApiAnalysisClient;
+import hansung.org.terrius.domain.report.analysis.dto.AnalyzeMatchReq;
+import hansung.org.terrius.domain.report.analysis.dto.AnalyzeResponse;
+import hansung.org.terrius.domain.report.analysis.dto.AnalyzeTestFixedCsvReq;
 import hansung.org.terrius.domain.report.entity.Report;
 import hansung.org.terrius.domain.report.entity.ReportOwnership;
 import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
@@ -34,6 +38,7 @@ public class ReportServiceImpl implements ReportService {
     private final MatchVideoRepository matchVideoRepository;
     private final ReportRepository reportRepository;
     private final ReportOwnershipRepository reportOwnershipRepository;
+    private final FastApiAnalysisClient fastApiAnalysisClient;
 
     @Override
     @Transactional
@@ -92,5 +97,20 @@ public class ReportServiceImpl implements ReportService {
         }
 
         return ReportDetailRes.from(report);
+    }
+
+    @Override
+    public Object checkAnalysisHealth() {
+        return fastApiAnalysisClient.health();
+    }
+
+    @Override
+    public AnalyzeResponse analyzeMatch(AnalyzeMatchReq req) {
+        return fastApiAnalysisClient.analyzeMatch(req);
+    }
+
+    @Override
+    public AnalyzeResponse analyzeMatchWithFixedCsv(AnalyzeTestFixedCsvReq req) {
+        return fastApiAnalysisClient.analyzeMatchWithFixedCsv(req);
     }
 }
