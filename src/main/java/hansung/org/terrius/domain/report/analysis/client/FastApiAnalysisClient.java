@@ -5,9 +5,11 @@ import hansung.org.terrius.domain.report.analysis.dto.AnalyzeResponse;
 import hansung.org.terrius.domain.report.analysis.dto.AnalyzeTestFixedCsvReq;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.time.Duration;
 import java.util.Map;
 
 @Component
@@ -21,10 +23,17 @@ public class FastApiAnalysisClient {
 
     public FastApiAnalysisClient(
             RestClient.Builder restClientBuilder,
-            @Value("${fastapi.base-url}") String fastApiBaseUrl
+            @Value("${fastapi.base-url}") String fastApiBaseUrl,
+            @Value("${fastapi.connect-timeout-ms}") long connectTimeoutMs,
+            @Value("${fastapi.read-timeout-ms}") long readTimeoutMs
     ) {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(Duration.ofMillis(connectTimeoutMs));
+        requestFactory.setReadTimeout(Duration.ofMillis(readTimeoutMs));
+
         this.restClient = restClientBuilder
                 .baseUrl(fastApiBaseUrl)
+                .requestFactory(requestFactory)
                 .build();
     }
 
