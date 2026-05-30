@@ -1,5 +1,8 @@
 package hansung.org.terrius.domain.report.web.controller;
 
+import hansung.org.terrius.domain.report.analysis.dto.AnalyzeMatchReq;
+import hansung.org.terrius.domain.report.analysis.dto.AnalyzeResponse;
+import hansung.org.terrius.domain.report.analysis.dto.AnalyzeTestFixedCsvReq;
 import hansung.org.terrius.domain.report.entity.enums.ReportTarget;
 import hansung.org.terrius.domain.report.entity.enums.ReportSortType;
 import hansung.org.terrius.domain.report.service.ReportService;
@@ -13,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +29,28 @@ import java.util.List;
 public class ReportController {
 
     private final ReportService reportService;
+
+    @GetMapping("/analysis/health")
+    public ResponseEntity<SuccessResponse<Object>> checkAnalysisHealth() {
+        Object res = reportService.checkAnalysisHealth();
+        return ResponseEntity.ok(SuccessResponse.from(res));
+    }
+
+    @PostMapping("/analysis/match")
+    public ResponseEntity<SuccessResponse<AnalyzeResponse>> analyzeMatch(
+            @RequestBody AnalyzeMatchReq req
+    ) {
+        AnalyzeResponse res = reportService.analyzeMatch(req);
+        return ResponseEntity.ok(SuccessResponse.from(res));
+    }
+
+    @PostMapping("/analysis/match/test-fixed-csv")
+    public ResponseEntity<SuccessResponse<AnalyzeResponse>> analyzeMatchWithFixedCsv(
+            @RequestBody AnalyzeTestFixedCsvReq req
+    ) {
+        AnalyzeResponse res = reportService.analyzeMatchWithFixedCsv(req);
+        return ResponseEntity.ok(SuccessResponse.from(res));
+    }
 
     @PostMapping("/match-videos/{matchVideoId}/download")
     public ResponseEntity<SuccessResponse<?>> downloadReports(
