@@ -69,7 +69,7 @@ public class ReportAnalysisAsyncService {
     }
 
     private void saveReports(Long matchVideoId, AnalyzeResponse analyzeResponse) {
-        if (!reportRepository.findAllByMatchVideoId(matchVideoId).isEmpty()) {
+        if (reportRepository.existsByMatchVideoId(matchVideoId)) {
             return;
         }
 
@@ -81,7 +81,7 @@ public class ReportAnalysisAsyncService {
     }
 
     private void cancelReportRequest(Long matchVideoId) {
-        if (!reportRepository.findAllByMatchVideoId(matchVideoId).isEmpty()) {
+        if (reportRepository.existsByMatchVideoId(matchVideoId)) {
             return;
         }
 

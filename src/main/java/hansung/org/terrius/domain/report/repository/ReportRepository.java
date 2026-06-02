@@ -14,6 +14,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     List<Report> findAllByMatchVideoId(Long matchVideoId);
 
+    boolean existsByMatchVideoId(Long matchVideoId);
+
     @Query("""
             select distinct r
             from Report r
