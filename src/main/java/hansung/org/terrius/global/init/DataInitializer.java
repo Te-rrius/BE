@@ -99,14 +99,26 @@ public class DataInitializer implements ApplicationRunner {
 
     private void initReports() {
         String scoringStrokeUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/06_scoring_stroke.mp4";
-        String unforcedErrorUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/01_unforced_error.mp4";
+        String playerAPipelineUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/player-A-pipeline.mp4";
+        String playerBPipelineUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/player-B-pipeline.mp4";
         String playerABestUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_A_best_01.mp4";
         String playerABestUrl2 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_A_best_02.mp4";
         String playerABestUrl3 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_A_best_03.mp4";
         String playerAWorstUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_a_worst_01.mp4";
         String playerBBestUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_b_best_01.mp4";
         String playerBWorstUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_b_worst_01.mp4";
+        String report2PlayerAWinUrl1 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerA-win-1.mp4";
+        String report2PlayerAWinUrl2 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerA-win-2.mp4";
+        String report2PlayerAWinUrl3 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerA-worst-1.mp4";
+        String report2PlayerAWorstUrl1 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerA-worst-2.mp4";
+        String report2PlayerAWorstUrl2 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerA-worst-3.mp4";
+        String report2PlayerBWinUrl1 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerB-win-1.mp4";
+        String report2PlayerBWinUrl2 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerB-win-2.mp4";
+        String report2PlayerBWinUrl3 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerB-win-3.mp4";
+        String report2PlayerBWorstUrl1 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerB-worst-1.mp4";
+        String report2PlayerBWorstUrl2 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/report2-playerB-worst-2.mp4";
         MatchVideo matchVideo = getOrCreateMatchVideo(scoringStrokeUrl);
+        MatchVideo pipelineMatchVideo = getOrCreatePipelineMatchVideo(scoringStrokeUrl);
 
         if (reportRepository.count() > 0) {
             return;
@@ -170,13 +182,71 @@ public class DataInitializer implements ApplicationRunner {
         );
         reportRepository.save(playerTwoReport);
 
+        Report pipelinePlayerOneReport = Report.builder()
+                .maxSpeed(132.4)
+                .averageRallyCount(6.4)
+                .maxRallyCount(18)
+                .minRallyCount(2)
+                .totalShotCount(142)
+                .firstServeSuccessRate(72.5)
+                .secondServeSuccessRate(81.3)
+                .firstServeRate(68.2)
+                .target(ReportTarget.PLAYER_ONE)
+                .build();
+        pipelinePlayerOneReport.assignMatchVideo(pipelineMatchVideo);
+        MotionAnalysis.create(
+                pipelinePlayerOneReport,
+                playerAPipelineUrl,
+                ShotType.BACKHAND,
+                17.469095503163288,
+                10.299102099081978,
+                2.0791317219047585,
+                "허리 회전을 교정하면 점수가 약 +27점 향상될 수 있어요",
+                38.6
+        );
+        reportRepository.save(pipelinePlayerOneReport);
+
+        Report pipelinePlayerTwoReport = Report.builder()
+                .maxSpeed(126.8)
+                .averageRallyCount(6.4)
+                .maxRallyCount(18)
+                .minRallyCount(2)
+                .totalShotCount(142)
+                .firstServeSuccessRate(66.8)
+                .secondServeSuccessRate(78.9)
+                .firstServeRate(63.7)
+                .target(ReportTarget.PLAYER_TWO)
+                .build();
+        pipelinePlayerTwoReport.assignMatchVideo(pipelineMatchVideo);
+        MotionAnalysis.create(
+                pipelinePlayerTwoReport,
+                playerBPipelineUrl,
+                ShotType.FOREHAND,
+                12.441077072115291,
+                5.6980761579279715,
+                7.193470055295535,
+                "척추 회전을 교정하면 점수가 약 +15점 향상될 수 있어요",
+                68.9
+        );
+        reportRepository.save(pipelinePlayerTwoReport);
+
         highlightVideoRepository.saveAll(List.of(
                 HighlightVideo.create(playerOneReport, HighlightVideoType.WINNING_SHOT, playerABestUrl),
                 HighlightVideo.create(playerOneReport, HighlightVideoType.WINNING_SHOT, playerABestUrl2),
                 HighlightVideo.create(playerOneReport, HighlightVideoType.WINNING_SHOT, playerABestUrl3),
                 HighlightVideo.create(playerOneReport, HighlightVideoType.WORST_SHOT, playerAWorstUrl),
                 HighlightVideo.create(playerTwoReport, HighlightVideoType.WINNING_SHOT, playerBBestUrl),
-                HighlightVideo.create(playerTwoReport, HighlightVideoType.WORST_SHOT, playerBWorstUrl)
+                HighlightVideo.create(playerTwoReport, HighlightVideoType.WORST_SHOT, playerBWorstUrl),
+                HighlightVideo.create(pipelinePlayerOneReport, HighlightVideoType.WINNING_SHOT, report2PlayerAWinUrl1),
+                HighlightVideo.create(pipelinePlayerOneReport, HighlightVideoType.WINNING_SHOT, report2PlayerAWinUrl2),
+                HighlightVideo.create(pipelinePlayerOneReport, HighlightVideoType.WINNING_SHOT, report2PlayerAWinUrl3),
+                HighlightVideo.create(pipelinePlayerOneReport, HighlightVideoType.WORST_SHOT, report2PlayerAWorstUrl1),
+                HighlightVideo.create(pipelinePlayerOneReport, HighlightVideoType.WORST_SHOT, report2PlayerAWorstUrl2),
+                HighlightVideo.create(pipelinePlayerTwoReport, HighlightVideoType.WINNING_SHOT, report2PlayerBWinUrl1),
+                HighlightVideo.create(pipelinePlayerTwoReport, HighlightVideoType.WINNING_SHOT, report2PlayerBWinUrl2),
+                HighlightVideo.create(pipelinePlayerTwoReport, HighlightVideoType.WINNING_SHOT, report2PlayerBWinUrl3),
+                HighlightVideo.create(pipelinePlayerTwoReport, HighlightVideoType.WORST_SHOT, report2PlayerBWorstUrl1),
+                HighlightVideo.create(pipelinePlayerTwoReport, HighlightVideoType.WORST_SHOT, report2PlayerBWorstUrl2)
         ));
     }
 
@@ -190,6 +260,25 @@ public class DataInitializer implements ApplicationRunner {
                             .matchDate(LocalDate.of(2026, 5, 16))
                             .startTime(LocalTime.of(14, 0))
                             .endTime(LocalTime.of(15, 20))
+                            .matchType(MatchType.SINGLES)
+                            .reportRequested(true)
+                            .build();
+                    matchVideo.assignCourt(court);
+                    return matchVideoRepository.save(matchVideo);
+                });
+    }
+
+    private MatchVideo getOrCreatePipelineMatchVideo(String videoUrl) {
+        return matchVideoRepository.findAll().stream()
+                .filter(matchVideo -> matchVideo.getId() != null && matchVideo.getId() == 2L)
+                .findFirst()
+                .orElseGet(() -> {
+                    Court court = courtRepository.findAll().getFirst();
+                    MatchVideo matchVideo = MatchVideo.builder()
+                            .videoUrl(videoUrl)
+                            .matchDate(LocalDate.of(2026, 5, 5))
+                            .startTime(LocalTime.of(10, 0))
+                            .endTime(LocalTime.of(12, 0))
                             .matchType(MatchType.SINGLES)
                             .reportRequested(true)
                             .build();

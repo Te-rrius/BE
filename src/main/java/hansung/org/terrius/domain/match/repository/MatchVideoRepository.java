@@ -18,7 +18,11 @@ public interface MatchVideoRepository extends JpaRepository<MatchVideo, Long> {
             from MatchVideo mv
             where mv.court.stadium.id = :stadiumId
               and mv.matchDate between :start and :end
-              and mv.reportRequested = true
+              and exists (
+                  select r.id
+                  from Report r
+                  where r.matchVideo = mv
+              )
             """)
     List<LocalDate> findReportedMatchDates(
             @Param("stadiumId") Long stadiumId,
@@ -32,7 +36,11 @@ public interface MatchVideoRepository extends JpaRepository<MatchVideo, Long> {
             where mv.court.stadium.id = :stadiumId
               and mv.court.courtNumber = :courtNumber
               and mv.matchDate between :start and :end
-              and mv.reportRequested = true
+              and exists (
+                  select r.id
+                  from Report r
+                  where r.matchVideo = mv
+              )
             """)
     List<LocalDate> findReportedMatchDatesByCourt(
             @Param("stadiumId") Long stadiumId,
@@ -47,7 +55,11 @@ public interface MatchVideoRepository extends JpaRepository<MatchVideo, Long> {
             where mv.court.stadium.id = :stadiumId
               and mv.court.courtNumber = :courtNumber
               and mv.matchDate = :date
-              and mv.reportRequested = true
+              and exists (
+                  select r.id
+                  from Report r
+                  where r.matchVideo = mv
+              )
             order by mv.startTime asc
             """)
     List<MatchVideo> findReportedMatchVideos(

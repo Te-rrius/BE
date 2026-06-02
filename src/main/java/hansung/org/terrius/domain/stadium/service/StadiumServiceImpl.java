@@ -4,6 +4,7 @@ import hansung.org.terrius.domain.match.entity.MatchVideo;
 import hansung.org.terrius.domain.match.exception.MatchErrorCode;
 import hansung.org.terrius.domain.match.exception.MatchException;
 import hansung.org.terrius.domain.match.repository.MatchVideoRepository;
+import hansung.org.terrius.domain.report.analysis.service.ReportAnalysisAsyncService;
 import hansung.org.terrius.domain.stadium.entity.Court;
 import hansung.org.terrius.domain.stadium.entity.Stadium;
 import hansung.org.terrius.domain.stadium.exception.CourtErrorCode;
@@ -21,6 +22,8 @@ import hansung.org.terrius.domain.stadium.web.dto.StadiumRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -36,6 +39,7 @@ public class StadiumServiceImpl implements StadiumService {
     private final StadiumRepository stadiumRepository;
     private final CourtRepository courtRepository;
     private final MatchVideoRepository matchVideoRepository;
+    private final ReportAnalysisAsyncService reportAnalysisAsyncService;
 
     @Override
     public List<StadiumRes> getStadiums(String province, String city, String name) {
@@ -183,6 +187,7 @@ public class StadiumServiceImpl implements StadiumService {
         }
 
         matchVideo.requestReport();
+        runAfterCommit(() -> reportAnalysisAsyncService.analyzeAndSave(matchVideo.getId()));
     }
 
 
@@ -192,5 +197,19 @@ public class StadiumServiceImpl implements StadiumService {
             return null;
         }
         return value.trim();
+    }
+
+    private void runAfterCommit(Runnable task) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            task.run();
+            return;
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                task.run();
+            }
+        });
     }
 }
