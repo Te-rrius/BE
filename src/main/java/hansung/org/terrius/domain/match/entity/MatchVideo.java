@@ -87,4 +87,8 @@ public class MatchVideo extends BaseEntity {
     public void requestReport() {
         this.reportRequested = true;
     }
+
+    public void cancelReportRequest() {
+        this.reportRequested = false;
+    }
 }

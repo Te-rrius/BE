@@ -17,6 +17,7 @@ import hansung.org.terrius.domain.report.exception.ReportErrorCode;
 import hansung.org.terrius.domain.report.exception.ReportException;
 import hansung.org.terrius.domain.report.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ReportAnalysisAsyncService {
 
@@ -36,10 +38,15 @@ public class ReportAnalysisAsyncService {
 
     @Async("reportAnalysisTaskExecutor")
     public void analyzeAndSave(Long matchVideoId) {
-        MatchVideoSnapshot snapshot = transactionTemplate.execute(status -> loadSnapshot(matchVideoId));
-        AnalyzeResponse analyzeResponse = fastApiAnalysisClient.analyzeMatch(createAnalyzeMatchReq(snapshot));
+        try {
+            MatchVideoSnapshot snapshot = transactionTemplate.execute(status -> loadSnapshot(matchVideoId));
+            AnalyzeResponse analyzeResponse = fastApiAnalysisClient.analyzeMatch(createAnalyzeMatchReq(snapshot));
 
-        transactionTemplate.executeWithoutResult(status -> saveReports(matchVideoId, analyzeResponse));
+            transactionTemplate.executeWithoutResult(status -> saveReports(matchVideoId, analyzeResponse));
+        } catch (Exception e) {
+            log.warn("Failed to analyze report. matchVideoId={}", matchVideoId, e);
+            transactionTemplate.executeWithoutResult(status -> cancelReportRequest(matchVideoId));
+        }
     }
 
     private MatchVideoSnapshot loadSnapshot(Long matchVideoId) {
@@ -71,6 +78,15 @@ public class ReportAnalysisAsyncService {
 
         List<Report> reports = createReports(matchVideo, analyzeResponse);
         reportRepository.saveAll(reports);
+    }
+
+    private void cancelReportRequest(Long matchVideoId) {
+        if (!reportRepository.findAllByMatchVideoId(matchVideoId).isEmpty()) {
+            return;
+        }
+
+        matchVideoRepository.findById(matchVideoId)
+                .ifPresent(MatchVideo::cancelReportRequest);
     }
 
     private List<Report> createReports(MatchVideo matchVideo, AnalyzeResponse analyzeResponse) {
