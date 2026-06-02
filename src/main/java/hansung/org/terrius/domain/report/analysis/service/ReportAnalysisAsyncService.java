@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -118,26 +117,26 @@ public class ReportAnalysisAsyncService {
 
         report.assignMatchVideo(matchVideo);
 
-        Optional.ofNullable(player.motionAnalyses())
-                .orElse(List.of())
-                .forEach(motionAnalysis -> MotionAnalysis.create(
-                        report,
-                        motionAnalysis.videoUrl(),
-                        parseEnum(ShotType.class, motionAnalysis.shotType()),
-                        motionAnalysis.shoulderRotationAngle(),
-                        motionAnalysis.spineRotationAngle(),
-                        motionAnalysis.waistRotationAngle(),
-                        motionAnalysis.improvementPoint(),
-                        motionAnalysis.score()
-                ));
+        if (player.motionAnalyses() != null) {
+            player.motionAnalyses().forEach(motionAnalysis -> MotionAnalysis.create(
+                    report,
+                    motionAnalysis.videoUrl(),
+                    parseEnum(ShotType.class, motionAnalysis.shotType()),
+                    motionAnalysis.shoulderRotationAngle(),
+                    motionAnalysis.spineRotationAngle(),
+                    motionAnalysis.waistRotationAngle(),
+                    motionAnalysis.improvementPoint(),
+                    motionAnalysis.score()
+            ));
+        }
 
-        Optional.ofNullable(player.highlightVideos())
-                .orElse(List.of())
-                .forEach(highlightVideo -> HighlightVideo.create(
-                        report,
-                        parseEnum(HighlightVideoType.class, highlightVideo.videoType()),
-                        highlightVideo.videoUrl()
-                ));
+        if (player.highlightVideos() != null) {
+            player.highlightVideos().forEach(highlightVideo -> HighlightVideo.create(
+                    report,
+                    parseEnum(HighlightVideoType.class, highlightVideo.videoType()),
+                    highlightVideo.videoUrl()
+            ));
+        }
 
         return report;
     }
