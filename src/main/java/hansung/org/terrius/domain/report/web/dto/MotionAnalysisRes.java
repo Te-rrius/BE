@@ -13,6 +13,12 @@ public record MotionAnalysisRes(
         Double shoulderRotationAngle,
         Double spineRotationAngle,
         Double waistRotationAngle,
+        Double shoulderReferenceValue,
+        String shoulderFeedback,
+        Double spineReferenceValue,
+        String spineFeedback,
+        Double waistReferenceValue,
+        String waistFeedback,
         String improvementPoint,
         Double score
 ) {
@@ -25,6 +31,12 @@ public record MotionAnalysisRes(
                 .shoulderRotationAngle(motionAnalysis.getShoulderRotationAngle())
                 .spineRotationAngle(motionAnalysis.getSpineRotationAngle())
                 .waistRotationAngle(motionAnalysis.getWaistRotationAngle())
+                .shoulderReferenceValue(motionAnalysis.getShoulderReferenceValue())
+                .shoulderFeedback(motionAnalysis.getShoulderFeedback())
+                .spineReferenceValue(motionAnalysis.getSpineReferenceValue())
+                .spineFeedback(motionAnalysis.getSpineFeedback())
+                .waistReferenceValue(motionAnalysis.getWaistReferenceValue())
+                .waistFeedback(motionAnalysis.getWaistFeedback())
                 .improvementPoint(motionAnalysis.getImprovementPoint())
                 .score(motionAnalysis.getScore())
                 .build();

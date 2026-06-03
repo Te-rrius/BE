@@ -101,6 +101,7 @@ public class DataInitializer implements ApplicationRunner {
         String scoringStrokeUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/06_scoring_stroke.mp4";
         String playerAPipelineUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/player-A-pipeline.mp4";
         String playerBPipelineUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/player-B-pipeline.mp4";
+        String playerBBackhandUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/player_B_back.mp4";
         String playerABestUrl = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_A_best_01.mp4";
         String playerABestUrl2 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_A_best_02.mp4";
         String playerABestUrl3 = "https://terrius-bucket.s3.ap-northeast-2.amazonaws.com/cut_video_player_A_best_03.mp4";
@@ -201,6 +202,12 @@ public class DataInitializer implements ApplicationRunner {
                 17.469095503163288,
                 10.299102099081978,
                 2.0791317219047585,
+                11.7,
+                "5.8°나 초과됐어요. 회전 범위를 크게 줄여야 해요.",
+                6.7,
+                "3.6°나 초과됐어요. 회전 범위를 크게 줄여야 해요.",
+                11.1,
+                "9.0° 부족해요. 허리를 더 틀어보세요.",
                 "허리 회전을 교정하면 점수가 약 +27점 향상될 수 있어요",
                 38.6
         );
@@ -225,8 +232,24 @@ public class DataInitializer implements ApplicationRunner {
                 12.441077072115291,
                 5.6980761579279715,
                 7.193470055295535,
+                15.9,
+                "3.5° 부족해요. 어깨를 더 틀어보세요.",
+                10.4,
+                "4.7° 부족해요. 상체를 더 틀어보세요.",
+                9.8,
+                "2.6° 부족해요. 허리를 더 틀어보세요.",
                 "척추 회전을 교정하면 점수가 약 +15점 향상될 수 있어요",
                 68.9
+        );
+        MotionAnalysis.create(
+                pipelinePlayerTwoReport,
+                playerBBackhandUrl,
+                ShotType.BACKHAND,
+                12.1,
+                7.0,
+                10.8,
+                "백핸드 임팩트 구간에서 어깨와 허리 회전이 안정적으로 맞아 좋은 자세를 유지하고 있어요.",
+                91.4
         );
         reportRepository.save(pipelinePlayerTwoReport);
 
