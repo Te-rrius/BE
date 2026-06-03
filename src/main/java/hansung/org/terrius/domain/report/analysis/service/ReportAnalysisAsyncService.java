@@ -125,6 +125,12 @@ public class ReportAnalysisAsyncService {
                     motionAnalysis.shoulderRotationAngle(),
                     motionAnalysis.spineRotationAngle(),
                     motionAnalysis.waistRotationAngle(),
+                    motionAnalysis.shoulderReferenceValue(),
+                    motionAnalysis.shoulderFeedback(),
+                    motionAnalysis.spineReferenceValue(),
+                    motionAnalysis.spineFeedback(),
+                    motionAnalysis.waistReferenceValue(),
+                    motionAnalysis.waistFeedback(),
                     motionAnalysis.improvementPoint(),
                     motionAnalysis.score()
             ));

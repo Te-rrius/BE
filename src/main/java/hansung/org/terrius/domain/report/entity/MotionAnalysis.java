@@ -51,6 +51,24 @@ public class MotionAnalysis extends BaseEntity {
     @Column(name = "waist_rotation_angle", nullable = false)
     private Double waistRotationAngle;
 
+    @Column(name = "shoulder_reference_value")
+    private Double shoulderReferenceValue;
+
+    @Column(name = "shoulder_feedback")
+    private String shoulderFeedback;
+
+    @Column(name = "spine_reference_value")
+    private Double spineReferenceValue;
+
+    @Column(name = "spine_feedback")
+    private String spineFeedback;
+
+    @Column(name = "waist_reference_value")
+    private Double waistReferenceValue;
+
+    @Column(name = "waist_feedback")
+    private String waistFeedback;
+
     @Column(name = "improvement_point", nullable = false)
     private String improvementPoint;
 
@@ -67,6 +85,40 @@ public class MotionAnalysis extends BaseEntity {
             String improvementPoint,
             Double score
     ) {
+        return create(
+                report,
+                videoUrl,
+                shotType,
+                shoulderRotationAngle,
+                spineRotationAngle,
+                waistRotationAngle,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                improvementPoint,
+                score
+        );
+    }
+
+    public static MotionAnalysis create(
+            Report report,
+            String videoUrl,
+            ShotType shotType,
+            Double shoulderRotationAngle,
+            Double spineRotationAngle,
+            Double waistRotationAngle,
+            Double shoulderReferenceValue,
+            String shoulderFeedback,
+            Double spineReferenceValue,
+            String spineFeedback,
+            Double waistReferenceValue,
+            String waistFeedback,
+            String improvementPoint,
+            Double score
+    ) {
         MotionAnalysis motionAnalysis = MotionAnalysis.builder()
                 .report(report)
                 .videoUrl(videoUrl)
@@ -74,6 +126,12 @@ public class MotionAnalysis extends BaseEntity {
                 .shoulderRotationAngle(shoulderRotationAngle)
                 .spineRotationAngle(spineRotationAngle)
                 .waistRotationAngle(waistRotationAngle)
+                .shoulderReferenceValue(shoulderReferenceValue)
+                .shoulderFeedback(shoulderFeedback)
+                .spineReferenceValue(spineReferenceValue)
+                .spineFeedback(spineFeedback)
+                .waistReferenceValue(waistReferenceValue)
+                .waistFeedback(waistFeedback)
                 .improvementPoint(improvementPoint)
                 .score(score)
                 .build();
